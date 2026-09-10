@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+data/snapshots/
+!data/arkiv/
+
+# Bygde filer — blir laga på nytt kvar dag av .github/workflows/dagleg.yml
+app/index.html
+data/app/

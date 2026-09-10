@@ -1,0 +1,893 @@
+<title>Oppdretter</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#EEF2F1; --surface:#FFFFFF; --surface-2:#F6F9F8;
+  --ink:#0F1E1D; --ink-2:#4C5F5D; --ink-3:#7A8A88;
+  --line:#D6DEDC; --line-2:#E8EDEC;
+  --accent:#0C6156; --accent-soft:#DCEBE8;
+  --kritisk:#A32A1E; --kritisk-soft:#F8E5E2;
+  --varsel:#8C5E04; --varsel-soft:#F9EFDD;
+  --rolig:#356543; --rolig-soft:#E4EEE6;
+  --po-gron:#3A7A4C; --po-gul:#BE9312; --po-rod:#A32A1E;
+  --hav:#DDE6E5; --baat:#2C5C86; --baat-soft:#DEE8F1;
+  --skug:0 1px 2px rgba(15,30,29,.05), 0 4px 14px rgba(15,30,29,.05);
+  --r:8px;
+  --display:"Familjen Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --body:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0A1413; --surface:#101E1C; --surface-2:#16241F;
+    --ink:#E6EDEB; --ink-2:#9DAFAC; --ink-3:#6F817F;
+    --line:#233330; --line-2:#1A2926;
+    --accent:#48BCAB; --accent-soft:#16332E;
+    --kritisk:#E8776A; --kritisk-soft:#37201C;
+    --varsel:#D9A431; --varsel-soft:#332818;
+    --rolig:#6FB183; --rolig-soft:#1A2E21;
+    --po-gron:#5C9E6D; --po-gul:#C9A43A; --po-rod:#C4584A;
+    --hav:#0E1A18; --baat:#6FA8D8; --baat-soft:#16252F;
+    --skug:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A1413; --surface:#101E1C; --surface-2:#16241F;
+  --ink:#E6EDEB; --ink-2:#9DAFAC; --ink-3:#6F817F;
+  --line:#233330; --line-2:#1A2926;
+  --accent:#48BCAB; --accent-soft:#16332E;
+  --kritisk:#E8776A; --kritisk-soft:#37201C;
+  --varsel:#D9A431; --varsel-soft:#332818;
+  --rolig:#6FB183; --rolig-soft:#1A2E21;
+  --po-gron:#5C9E6D; --po-gul:#C9A43A; --po-rod:#C4584A;
+  --hav:#0E1A18; --baat:#6FA8D8; --baat-soft:#16252F;
+  --skug:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;text-wrap:balance;letter-spacing:-.012em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input{font:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* ── topp ───────────────────────────────────────────── */
+.topp{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--line)}
+.topp-inn{max-width:1440px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.merke{display:flex;align-items:baseline;gap:9px;margin-right:auto}
+.merke h1{font-size:19px;font-weight:700;letter-spacing:-.022em}
+.merke .und{font-size:12px;color:var(--ink-3)}
+.faner{display:flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:var(--r);border:1px solid var(--line-2)}
+.faner button{padding:6px 16px;border-radius:5px;font-size:14px;font-weight:600;color:var(--ink-2);font-family:var(--display)}
+.faner button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--skug)}
+
+/* rolle-veljar */
+.rolle{background:var(--surface-2);border-bottom:1px solid var(--line-2)}
+.rolle-inn{max-width:1440px;margin:0 auto;padding:9px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rolle-inn>span{font-size:12.5px;color:var(--ink-3)}
+.rolle-val{display:flex;gap:6px}
+.rolle-val button{padding:5px 14px;border-radius:20px;font-size:13.5px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface)}
+.rolle-val button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+:root[data-theme="dark"] .rolle-val button[aria-pressed="true"],
+:root:not([data-theme="light"]) .rolle-val button[aria-pressed="true"]{color:#08201C}
+.sok{margin-left:auto;display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:5px 13px;min-width:min(300px,100%)}
+.sok input{border:0;background:none;outline:none;flex:1;color:var(--ink);font-size:13.5px;min-width:0}
+.sok input::placeholder{color:var(--ink-3)}
+.sok svg{flex:none;opacity:.5}
+
+/* ── skal ───────────────────────────────────────────── */
+.skal{max-width:1440px;margin:0 auto;padding:16px 18px 50px;display:grid;grid-template-columns:246px minmax(0,1fr);gap:20px;align-items:start}
+@media(max-width:940px){.skal{grid-template-columns:1fr;gap:14px}}
+.rail{position:sticky;top:118px;display:flex;flex-direction:column;gap:17px}
+@media(max-width:940px){.rail{position:static;flex-direction:row;overflow-x:auto;gap:14px;padding-bottom:4px}.bolk{min-width:max-content}}
+.bolk h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);margin-bottom:8px;font-weight:600}
+.bolk .forklar{font-size:12px;color:var(--ink-3);margin:0 0 8px;line-height:1.4}
+.seg{display:flex;flex-direction:column;gap:3px}
+@media(max-width:940px){.seg{flex-direction:row}}
+.seg button{text-align:left;padding:8px 11px;border-radius:6px;font-size:14px;display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--ink-2);border:1px solid transparent;white-space:nowrap}
+.seg button:hover{background:var(--surface-2)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 24%,transparent);font-weight:600}
+.seg button i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.seg button[aria-pressed="true"] i{color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chips button{padding:4px 10px;border-radius:20px;font-size:12.5px;border:1px solid var(--line);color:var(--ink-2)}
+.chips button:hover{border-color:var(--ink-3)}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+
+/* mine anlegg */
+.mine{display:flex;flex-direction:column;gap:3px}
+.mine .m{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 9px;border-radius:6px;background:var(--surface);border:1px solid var(--line-2);font-size:13px}
+.mine .m b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mine .m button{color:var(--ink-3);font-size:16px;line-height:1;padding:0 3px}
+.mine .m button:hover{color:var(--kritisk)}
+.mine.tomt{display:block;font-size:12.5px;color:var(--ink-3);line-height:1.45;margin:0}
+.mine.tomt em{font-style:normal;color:var(--accent);font-weight:600}
+
+/* ── feed ───────────────────────────────────────────── */
+.feed{display:flex;flex-direction:column;gap:8px;min-width:0}
+.feed-topp{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:2px;flex-wrap:wrap}
+.feed-topp h2{font-size:17px}
+.feed-topp p{margin:0;font-size:13px;color:var(--ink-3)}
+.kort{background:var(--surface);border:1px solid var(--line-2);border-left:3px solid var(--line);border-radius:var(--r);padding:12px 15px;display:flex;flex-direction:column;gap:5px;text-align:left;width:100%}
+.kort.a3{border-left-color:var(--kritisk)} .kort.a2{border-left-color:var(--varsel)} .kort.a1{border-left-color:var(--rolig)}
+.kort.mitt{box-shadow:0 0 0 1.5px var(--accent)}
+.kort.gammal{opacity:.72}
+.kort.gammal:hover{opacity:1}
+.kort-hovud{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.merkelapp{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;font-family:var(--display)}
+.m-a3{background:var(--kritisk-soft);color:var(--kritisk)}
+.m-a2{background:var(--varsel-soft);color:var(--varsel)}
+.m-a1{background:var(--rolig-soft);color:var(--rolig)}
+.mitt-merke{background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;font-family:var(--display)}
+.kort h3{font-size:15.5px;font-weight:600;min-width:0}
+.kort .detalj{font-size:14px;color:var(--ink-2);margin:0}
+.kort .meta{display:flex;gap:9px;flex-wrap:wrap;font-size:12px;color:var(--ink-3);padding-top:2px}
+.kort .meta span{white-space:nowrap}
+.kort .kvifor{margin:3px 0 0;padding:8px 11px;background:var(--surface-2);border-radius:6px;font-size:13.5px;color:var(--ink-2);border-left:2px solid var(--accent)}
+.kort .kvifor b{color:var(--accent);font-weight:600;font-family:var(--display);font-size:11px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:1px}
+.passar{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-3);margin-top:1px}
+.passar .bar{flex:1;max-width:110px;height:4px;background:var(--line-2);border-radius:3px;overflow:hidden}
+.passar .bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.liste-topp{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.liste-topp h2{font-size:17px}
+.liste-topp p{margin:0;font-size:13px;color:var(--ink-3)}
+.reg{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden}
+.bokstav{padding:6px 15px;background:var(--surface-2);font-family:var(--display);font-weight:600;font-size:12px;color:var(--ink-3);letter-spacing:.06em;border-bottom:1px solid var(--line-2);position:sticky;top:118px;z-index:5}
+.arad{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;gap:11px;align-items:center;padding:9px 15px;border-bottom:1px solid var(--line-2);width:100%;text-align:left}
+.arad:last-child{border-bottom:0}
+.arad:hover{background:var(--surface-2)}
+.arad .nal{display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;color:var(--ink-3);flex:none}
+.arad .nal:hover{background:var(--accent-soft);color:var(--accent)}
+.arad .nal[aria-pressed="true"]{color:var(--accent);background:var(--accent-soft)}
+.arad .namn{min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.arad .namn b{font-weight:600;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arad .namn em{font-style:normal;font-size:12px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.arad .fisk{font-size:11.5px;padding:2px 8px;border-radius:20px;white-space:nowrap;background:var(--surface-2);color:var(--ink-3)}
+.arad .fisk.ja{background:var(--rolig-soft);color:var(--rolig)}
+.arad .lusetal{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:14px;font-weight:600;text-align:right;white-space:nowrap;min-width:74px}
+.arad .lusetal i{font-style:normal;font-weight:400;font-size:11.5px;color:var(--ink-3)}
+.arad .lusetal.over{color:var(--kritisk)} .arad .lusetal.naer{color:var(--varsel)}
+.arad .lusetal.ingen{color:var(--ink-3);font-weight:400;font-size:12px}
+@media(max-width:620px){.arad{grid-template-columns:30px minmax(0,1fr) auto;gap:8px;padding:9px 11px}.arad .fisk{display:none}}
+.tom{padding:38px 22px;text-align:center;color:var(--ink-3);background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);line-height:1.55}
+.meir{align-self:center;margin-top:8px;padding:8px 20px;border:1px solid var(--line);border-radius:20px;font-size:13.5px;color:var(--ink-2);background:var(--surface)}
+.meir:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── kart ───────────────────────────────────────────── */
+.kartskal{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:940px){.kartskal{grid-template-columns:1fr}}
+.kartboks{background:var(--hav);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;position:relative;height:min(74vh,780px);touch-action:none}
+@media(max-width:940px){.kartboks{height:60vh}}
+.kartboks svg{display:block;width:100%;height:100%;cursor:grab}
+.kartboks svg.drar{cursor:grabbing}
+.po-omr{fill:var(--surface-2);stroke:var(--line);stroke-width:.5;vector-effect:non-scaling-stroke}
+.po-omr.g{fill:color-mix(in srgb,var(--po-gron) 24%,var(--surface))}
+.po-omr.y{fill:color-mix(in srgb,var(--po-gul) 28%,var(--surface))}
+.po-omr.r{fill:color-mix(in srgb,var(--po-rod) 24%,var(--surface))}
+.pkt{stroke:var(--surface);stroke-width:.5;vector-effect:non-scaling-stroke;cursor:pointer}
+.pkt.p-over{fill:var(--kritisk)} .pkt.p-naer{fill:var(--varsel)}
+.pkt.p-ok{fill:var(--rolig)} .pkt.p-ingen{fill:var(--ink-3);opacity:.4}
+.pkt.valt{stroke:var(--ink);stroke-width:2.4}
+.pkt.mitt{stroke:var(--accent);stroke-width:2.4}
+.baat{fill:var(--baat);stroke:var(--surface);stroke-width:.5;vector-effect:non-scaling-stroke;cursor:pointer}
+.baat.bb{fill:var(--baat)} .baat.sv{fill:var(--ink-3);opacity:.75}
+.baat.ved{stroke:var(--kritisk);stroke-width:2}
+.zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:4px}
+.zoom button{width:32px;height:32px;background:var(--surface);border:1px solid var(--line);border-radius:6px;font-size:17px;line-height:1;color:var(--ink-2);box-shadow:var(--skug);display:flex;align-items:center;justify-content:center}
+.zoom button:hover{color:var(--accent);border-color:var(--accent)}
+.zoom button.nullstill{font-size:11px;font-family:var(--display);font-weight:600}
+.teikn{position:absolute;left:10px;bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 11px;font-size:11.5px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--skug)}
+.teikn div{display:flex;align-items:center;gap:7px;color:var(--ink-2)}
+.teikn s{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.hjelp{position:absolute;right:10px;bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--ink-3);box-shadow:var(--skug)}
+
+/* ── panel ──────────────────────────────────────────── */
+.panel{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:15px;position:sticky;top:118px}
+@media(max-width:940px){.panel{position:static}}
+.panel h3{font-size:16.5px;margin-bottom:2px}
+.panel .selskap{font-size:13px;color:var(--ink-2);margin:0 0 12px}
+.status-stor{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:7px;margin-bottom:12px}
+.status-stor b{font-family:var(--mono);font-size:22px;font-weight:600;line-height:1}
+.status-stor span{font-size:12.5px;line-height:1.3}
+.s-over{background:var(--kritisk-soft);color:var(--kritisk)}
+.s-naer{background:var(--varsel-soft);color:var(--varsel)}
+.s-ok{background:var(--rolig-soft);color:var(--rolig)}
+.s-ingen{background:var(--surface-2);color:var(--ink-3)}
+.rad{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line-2);font-size:13.5px}
+.rad:last-of-type{border-bottom:0}
+.rad span{color:var(--ink-3)}
+.rad b{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;text-align:right}
+.trend{margin-top:14px}
+.trend h4{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin:0 0 7px;font-weight:600}
+.trend svg{width:100%;height:64px;display:block}
+.hint{color:var(--ink-3);font-size:13px;margin:0;line-height:1.45}
+.liste{display:flex;flex-direction:column;gap:2px;max-height:44vh;overflow-y:auto}
+.lrad{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 9px;border-radius:6px;text-align:left;font-size:13px;border:1px solid transparent;width:100%}
+.lrad:hover{background:var(--surface-2);border-color:var(--line-2)}
+.lrad span{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.lrad em{font-style:normal;font-size:11.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrad b{font-family:var(--mono);font-weight:600;white-space:nowrap}
+.lrad b.r{color:var(--kritisk)} .lrad b.b{color:var(--baat)}
+.tilbake{font-size:12.5px;color:var(--ink-2);margin-bottom:9px;display:inline-flex;align-items:center;gap:4px}
+.tilbake:hover{color:var(--accent)}
+.folg{width:100%;margin-top:12px;padding:8px;border-radius:6px;border:1px solid var(--accent);color:var(--accent);font-size:13.5px;font-weight:600;font-family:var(--display)}
+.folg:hover{background:var(--accent-soft)}
+.folg.av{border-color:var(--line);color:var(--ink-3)}
+.aatvaring{margin-top:12px;padding:9px 11px;background:var(--varsel-soft);color:var(--varsel);border-radius:6px;font-size:12.5px;line-height:1.45}
+.silhuett{background:var(--surface-2);border:1px solid var(--line-2);border-radius:7px;padding:12px 10px 8px;margin-bottom:12px}
+.silhuett svg{width:100%;height:auto;display:block}
+.silhuett p{margin:6px 0 0;font-size:11px;color:var(--ink-3);text-align:center}
+.baatmerke{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:20px;font-family:var(--display);margin-bottom:9px}
+.bm-godkjend{background:var(--rolig-soft);color:var(--rolig)}
+.bm-uviss{background:var(--varsel-soft);color:var(--varsel)}
+.bm-anna{background:var(--surface-2);color:var(--ink-3)}
+.kompass{display:flex;align-items:center;gap:10px;padding:9px 11px;background:var(--surface-2);border-radius:7px;margin:10px 0}
+.kompass svg{flex:none}
+.kompass div{line-height:1.3}
+.kompass b{font-family:var(--mono);font-size:17px;font-weight:600;display:block}
+.kompass span{font-size:11.5px;color:var(--ink-3)}
+.sone{margin-top:10px;padding:9px 11px;background:var(--kritisk-soft);color:var(--kritisk);border-radius:6px;font-size:12.5px;line-height:1.45}
+.sone b{display:block;font-family:var(--display);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.fjord{margin-top:16px;padding-top:14px;border-top:2px solid var(--line)}
+.fjord-topp{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:3px}
+.fjord h4{font-size:13.5px;text-transform:none;letter-spacing:0;color:var(--ink);font-weight:600}
+.ringar{display:flex;gap:3px;margin:8px 0 11px}
+.ringar button{flex:1;padding:5px 0;border-radius:5px;font-size:12.5px;border:1px solid var(--line);color:var(--ink-2);font-family:var(--mono)}
+.ringar button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+:root[data-theme="dark"] .ringar button[aria-pressed="true"],
+:root:not([data-theme="light"]) .ringar button[aria-pressed="true"]{color:#08201C}
+.press{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:7px;margin-bottom:10px}
+.press b{font-family:var(--mono);font-size:21px;font-weight:600;line-height:1}
+.press span{font-size:12.5px;line-height:1.35}
+.fj-rader{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:11px}
+.fj-rader div{background:var(--surface-2);border-radius:6px;padding:7px 9px}
+.fj-rader b{display:block;font-family:var(--mono);font-size:16px;font-weight:600;line-height:1.2}
+.fj-rader span{font-size:11px;color:var(--ink-3);line-height:1.25;display:block}
+
+/* ── botn ───────────────────────────────────────────── */
+.botn{max-width:1440px;margin:0 auto;padding:20px 18px 40px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3);line-height:1.6}
+.botn p{margin:0 0 6px;max-width:80ch}
+.botn b{color:var(--ink-2);font-weight:600}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<header class="topp">
+  <div class="topp-inn">
+    <div class="merke"><h1>Oppdretter</h1><span class="und" id="vekemerke"></span></div>
+    <div class="faner" role="tablist">
+      <button role="tab" aria-selected="true" data-fane="feed">Varsel</button>
+      <button role="tab" aria-selected="false" data-fane="kart">Kart</button>
+      <button role="tab" aria-selected="false" data-fane="anlegg">Anlegg</button>
+      <button role="tab" aria-selected="false" data-fane="baat">Båtar</button>
+    </div>
+  </div>
+</header>
+<div class="rolle">
+  <div class="rolle-inn">
+    <span>Eg er</span>
+    <div class="rolle-val">
+      <button data-rolle="drift" aria-pressed="true">oppdrettar</button>
+      <button data-rolle="lev" aria-pressed="false">leverandør</button>
+    </div>
+    <label class="sok">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7" cy="7" r="4.7"/><path d="M10.5 10.5L14 14"/></svg>
+      <input id="sok" type="search" placeholder="Søk etter anlegg, selskap eller båt" autocomplete="off">
+    </label>
+  </div>
+</div>
+
+<main class="skal">
+  <aside class="rail" id="rail"></aside>
+  <section id="innhald"></section>
+</main>
+
+<footer class="botn">
+  <p><b>Kjelder.</b> Lakselus, sjukdom og behandlingar: Mattilsynet. Lokalitetar, løyve, produksjonsområde og søknader: Fiskeridirektoratet. Sjukdomssoner: BarentsWatch. Fartøy: Kystdatahuset hos Kystverket.</p>
+  <p>Inneheld data under Norsk lisens for offentlege data (NLOD), tilgjengeleggjort av Mattilsynet, Fiskeridirektoratet og Kystverket. Data er bearbeidde av oss. Desse etatane står ikkje bak tenesta.</p>
+  <p><b>Les dette før du stolar på tala.</b> Tala er slik oppdrettarane rapporterte dei, utan kvalitetssikring. Eit anlegg utan luserapport er <em>ukjent</em>, ikkje trygt. Stamfisk kan ha løyve til høgare grense. Båtar av typen «Fish Carrier» kan vere brønnbåt <em>eller</em> slaktebåt — opne data skil dei ikkje. Fiskefartøy under 15 m og fritidsbåtar under 45 m er ikkje med i AIS.</p>
+  <p id="bygdmerke"></p>
+</footer>
+
+<script type="application/json" id="d">__DATA__</script>
+<script>
+(function(){
+"use strict";
+var D = JSON.parse(document.getElementById("d").textContent);
+
+var SEGNAMN = {alle:"Alt", not:"Not og utstyr", fortoying:"Fortøying",
+  bronnbat:"Brønnbåt", avlusing:"Avlusing", for:"Fôr", service:"Service"};
+var TYPENAMN = {over_grensa:"Over lusegrensa", luseauke:"Lusetal stig", behandling:"Avlusa",
+  behandlingsklynge:"Mange avlusar", sjukdom_paavist:"Sjukdom påvist",
+  sjukdom_avslutta:"Sjukdom over", ny_soknad:"Ny søknad", soknad_avgjort:"Søknad avgjort"};
+var PONAMN = {}; D.po.forEach(function(p){ PONAMN[p.id]=p.nm; });
+var LOK = {}; D.lokalitetar.forEach(function(l){ LOK[l.n]=l; });
+var FARTOY = D.fartoy || [];
+
+var S = {fane:"feed", rolle:"drift", seg:"alle", po:null, type:null,
+         vis:30, valt:null, valtBaat:null, sok:"", mine:[], baatfilter:"bb", ring:20, periode:null};
+
+/* mine anlegg — berre i denne nettlesaren */
+try{ var lagra=localStorage.getItem("oppdretter.mine"); if(lagra) S.mine=JSON.parse(lagra); }catch(e){}
+function lagreMine(){ try{ localStorage.setItem("oppdretter.mine", JSON.stringify(S.mine)); }catch(e){} }
+function erMitt(n){ return S.mine.indexOf(n)>=0; }
+
+function esc(t){ return String(t==null?"":t).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function poTekst(p){ return p==null?"":"PO "+p+(PONAMN[p]?" · "+PONAMN[p]:""); }
+
+/* naboar innan 10 km */
+function avstandKm(a,b){
+  var dy=(b.la-a.la)*111, dx=(b.lo-a.lo)*111*Math.cos(a.la*Math.PI/180);
+  return Math.sqrt(dx*dx+dy*dy);
+}
+function naboar(n,radius){
+  var l=LOK[n]; if(!l) return [];
+  var r=radius||10, ut=[];
+  D.lokalitetar.forEach(function(x){
+    if(x.n===n) return;
+    var d=avstandKm(l,x);
+    if(d<=r) ut.push({l:x,d:d});
+  });
+  return ut.sort(function(a,b){return a.d-b.d;});
+}
+function mineOgNaboar(){
+  var sett={};
+  S.mine.forEach(function(n){ sett[n]=1; naboar(n,10).forEach(function(x){sett[x.l.n]=2;}); });
+  return sett;
+}
+
+function poeng(h){
+  if(S.rolle==="drift") return 0;
+  if(S.seg==="alle"){ var v=Object.keys(h.relevans).map(function(k){return h.relevans[k].score;});
+    return v.length?Math.max.apply(null,v):0; }
+  return h.relevans[S.seg]?h.relevans[S.seg].score:0;
+}
+/* Eit gammalt varsel er mindre verdt enn eit ferskt, same kor relevant det er. */
+function rangering(h){ return poeng(h)*(h.fersk!=null?h.fersk:1); }
+
+function alderTekst(dagar){
+  if(dagar==null) return "";
+  if(dagar<=1) return "i går";
+  if(dagar<7) return dagar+" dagar sidan";
+  if(dagar<14) return "ei veke sidan";
+  if(dagar<60) return Math.round(dagar/7)+" veker sidan";
+  return Math.round(dagar/30)+" månader sidan";
+}
+
+function filtrert(){
+  var sok=S.sok.toLowerCase().trim();
+  var naer=S.rolle==="drift"&&S.mine.length?mineOgNaboar():null;
+  return D.hendingar.filter(function(h){
+    if(S.po!==null && h.produksjonsomrade!==S.po) return false;
+    if(S.type!==null && h.type!==S.type) return false;
+    if(S.rolle==="lev" && S.seg!=="alle" && !h.relevans[S.seg]) return false;
+    if(S.periode!==null && (h.dagar==null || h.dagar>S.periode)) return false;
+    if(naer && !(h.lokalitetsnr && naer[h.lokalitetsnr])) return false;
+    if(sok){
+      var t=(h.tittel+" "+(h.selskap||"")+" "+h.lokalitetsnamn+" "+(h.fylke||"")).toLowerCase();
+      if(t.indexOf(sok)<0) return false;
+    }
+    return true;
+  }).sort(function(a,b){
+    if(S.rolle==="drift"){
+      var ma=(a.lokalitetsnr&&erMitt(a.lokalitetsnr))?1:0, mb=(b.lokalitetsnr&&erMitt(b.lokalitetsnr))?1:0;
+      if(ma!==mb) return mb-ma;
+      if(a.dato!==b.dato) return a.dato<b.dato?1:-1;
+      return b.alvor-a.alvor;
+    }
+    var d=rangering(b)-rangering(a);
+    return d!==0?d:(a.dato<b.dato?1:-1);
+  });
+}
+
+/* ── sidepanel ── */
+function teiknRail(){
+  var h="";
+  if(S.fane!=="baat"){
+  if(S.rolle==="drift"){
+    h+='<div class="bolk"><h3>Anlegga mine</h3>'+
+      '<p class="forklar">Legg til anlegga du driv, så viser vi varsel for dei og for naboar innan 10 km.</p>';
+    if(S.mine.length){
+      h+='<div class="mine">'+S.mine.map(function(n){
+        var l=LOK[n];
+        return '<div class="m"><b>'+esc(l?l.nm:n)+'</b><button data-fjern="'+n+'" title="Fjern">&times;</button></div>';
+      }).join("")+'</div>';
+    } else {
+      h+='<p class="mine tomt">Ingen enno. Søk etter anlegget ditt eller trykk på det i kartet, og vel <em>Følg dette anlegget</em>.</p>';
+    }
+    h+='</div>';
+  } else {
+    h+='<div class="bolk"><h3>Eg leverer</h3>'+
+      '<p class="forklar">Vel kva du sel, så sorterer vi varsla etter kva som betyr mest for deg.</p><div class="seg">'+
+      ["alle"].concat(D.segment).map(function(s){
+        var n = s==="alle"?D.hendingar.length:D.hendingar.filter(function(x){return x.relevans[s];}).length;
+        return '<button data-seg="'+s+'" aria-pressed="'+(S.seg===s)+'">'+esc(SEGNAMN[s])+' <i>'+n+'</i></button>';
+      }).join("")+'</div></div>';
+  }
+  }
+
+  if(S.fane!=="baat")
+  h+='<div class="bolk"><h3>Område</h3><div class="chips">'+
+    '<button data-po="" aria-pressed="'+(S.po===null)+'">Heile landet</button>'+
+    D.po.map(function(p){
+      return '<button data-po="'+p.id+'" aria-pressed="'+(S.po===p.id)+'" title="'+esc(p.nm)+'">'+p.id+'</button>';
+    }).join("")+'</div></div>';
+
+  if(S.fane==="feed"){
+  h+='<div class="bolk"><h3>Kor langt tilbake</h3><div class="chips">'+
+    [[14,"Siste 2 veker"],[35,"Siste månad"],[90,"Siste 3 md"],[null,"Alt"]].map(function(v){
+      return '<button data-per="'+(v[0]===null?"":v[0])+'" aria-pressed="'+(S.periode===v[0])+'">'+v[1]+'</button>';
+    }).join("")+'</div></div>';
+
+  var typar={}; D.hendingar.forEach(function(x){typar[x.type]=(typar[x.type]||0)+1;});
+  h+='<div class="bolk"><h3>Kva slags varsel</h3><div class="chips">'+
+    '<button data-type="" aria-pressed="'+(S.type===null)+'">Alle</button>'+
+    Object.keys(typar).sort(function(a,b){return typar[b]-typar[a];}).map(function(t){
+      return '<button data-type="'+t+'" aria-pressed="'+(S.type===t)+'">'+esc(TYPENAMN[t]||t)+'</button>';
+    }).join("")+'</div></div>';
+  }
+
+  document.getElementById("rail").innerHTML=h;
+}
+
+/* ── feed ── */
+function teiknFeed(){
+  var liste=filtrert(), synleg=liste.slice(0,S.vis);
+  var innl = S.rolle==="drift"
+    ? (S.mine.length?"Anlegga dine og naboar innan 10 km, nyaste først."
+                    :"Alt som har skjedd, nyaste først. Legg til anlegga dine for å slippe støyen.")
+    : (S.seg==="alle"?"Alle varsel, sortert etter kor mykje dei betyr for nokon."
+                     :"Sortert etter kva som betyr mest når du leverer "+SEGNAMN[S.seg].toLowerCase()+".");
+
+  var h='<div class="feed-topp"><h2>'+liste.length+(liste.length===1?" varsel":" varsel")+'</h2><p>'+esc(innl)+'</p></div>';
+  if(!liste.length){
+    h+='<div class="tom">Ingen varsel med desse vala.<br>Prøv å velje «Heile landet» eller «Alle» typar.</div>';
+  } else {
+    h+=synleg.map(function(e){
+      var p=poeng(e), r=(S.rolle==="lev"&&S.seg!=="alle")?e.relevans[S.seg]:null;
+      var mitt=e.lokalitetsnr&&erMitt(e.lokalitetsnr);
+      var meta=[];
+      if(e.produksjonsomrade!=null) meta.push(poTekst(e.produksjonsomrade));
+      if(e.selskap) meta.push(esc(e.selskap));
+      meta.push('<span title="'+e.dato+'">'+esc(alderTekst(e.dagar))+'</span>');
+      return '<article class="kort a'+e.alvor+(mitt?" mitt":"")+(e.fersk!=null&&e.fersk<0.6?" gammal":"")+'">'+
+        '<div class="kort-hovud">'+
+          (mitt?'<span class="mitt-merke">Ditt anlegg</span>':'')+
+          '<span class="merkelapp m-a'+e.alvor+'">'+esc(TYPENAMN[e.type]||e.type)+'</span>'+
+          '<h3>'+esc(e.tittel)+'</h3></div>'+
+        '<p class="detalj">'+esc(e.detalj)+'</p>'+
+        (r?'<div class="kvifor"><b>Kvifor dette er verdt ein telefon</b>'+esc(r.why)+'</div>':'')+
+        (S.rolle==="lev"?'<div class="passar">Passar deg <span class="bar"><i style="width:'+p+'%"></i></span> '+p+' av 100</div>':'')+
+        '<div class="meta">'+meta.map(function(m){return m.indexOf("<span")===0?m:'<span>'+m+'</span>';}).join("")+'</div>'+
+      '</article>';
+    }).join("");
+    if(liste.length>S.vis) h+='<button class="meir" id="meir">Vis fleire ('+(liste.length-S.vis)+' att)</button>';
+  }
+  document.getElementById("innhald").innerHTML='<div class="feed">'+h+'</div>';
+  var m=document.getElementById("meir"); if(m) m.onclick=function(){S.vis+=30;teiknFeed();};
+}
+
+/* ── kartprojeksjon og zoom ── */
+var MID=Math.cos(65*Math.PI/180);
+function px(lon,lat){ return [lon*MID,-lat]; }
+var BOKS=(function(){
+  var a=1e9,b=1e9,c=-1e9,d=-1e9;
+  D.po.forEach(function(p){p.p.forEach(function(poly){poly.forEach(function(ring){
+    ring.forEach(function(q){var t=px(q[0],q[1]);
+      if(t[0]<a)a=t[0];if(t[0]>c)c=t[0];if(t[1]<b)b=t[1];if(t[1]>d)d=t[1];});});});});
+  var pad=(c-a)*0.03;
+  return {x:a-pad,y:b-pad,w:(c-a)+pad*2,h:(d-b)+pad*2};
+})();
+var V={x:BOKS.x,y:BOKS.y,w:BOKS.w,h:BOKS.h};
+function vbStr(){ return V.x+" "+V.y+" "+V.w+" "+V.h; }
+function nullstillVb(){ V={x:BOKS.x,y:BOKS.y,w:BOKS.w,h:BOKS.h}; }
+function zoomTil(lon,lat,bredde){
+  var t=px(lon,lat);
+  V={x:t[0]-bredde/2, y:t[1]-bredde/2*(BOKS.h/BOKS.w), w:bredde, h:bredde*(BOKS.h/BOKS.w)};
+}
+function zoomOm(faktor,cx,cy){
+  var ny=Math.min(BOKS.w, Math.max(BOKS.w/900, V.w*faktor));
+  var f=ny/V.w;
+  V.x=cx-(cx-V.x)*f; V.y=cy-(cy-V.y)*f;
+  V.w=ny; V.h=V.h*f;
+}
+function skala(){ return V.w/BOKS.w; }
+
+function status(l){
+  if(l.lus==null) return "p-ingen";
+  if(l.lus>l.gr) return "p-over";
+  if(l.lus>l.gr*0.6) return "p-naer";
+  return "p-ok";
+}
+function poKlasse(st){ return st==="rød"?"r":st==="gul"?"y":st==="grønn"?"g":""; }
+
+function kartSvg(medBaat){
+  var r=BOKS.w*0.0052*Math.max(0.32,Math.pow(skala(),0.62));
+  var stiar=D.po.map(function(p){
+    var d=p.p.map(function(poly){ return poly.map(function(ring){
+      return "M"+ring.map(function(q){var t=px(q[0],q[1]);
+        return t[0].toFixed(3)+" "+t[1].toFixed(3);}).join("L")+"Z"; }).join(""); }).join("");
+    return '<path class="po-omr '+poKlasse(p.st)+'" d="'+d+'"><title>PO '+p.id+" "+esc(p.nm)+
+      " — trafikklys "+esc(p.st)+'</title></path>';
+  }).join("");
+
+  var sok=S.sok.toLowerCase().trim();
+  var pkt=D.lokalitetar.map(function(l){
+    if(sok && (l.nm+" "+(l.s||"")).toLowerCase().indexOf(sok)<0) return "";
+    var t=px(l.lo,l.la);
+    var stor=(l.lus!=null?r*1.3:r*0.72)*(erMitt(l.n)?1.5:1);
+    return '<circle class="pkt '+status(l)+(S.valt===l.n?" valt":"")+(erMitt(l.n)?" mitt":"")+
+      '" cx="'+t[0].toFixed(3)+'" cy="'+t[1].toFixed(3)+'" r="'+stor.toFixed(4)+
+      '" data-n="'+l.n+'"><title>'+esc(l.nm)+
+      (l.lus!=null?" — "+l.lus.toFixed(2)+" vaksne holus, grense "+l.gr:" — ingen luserapport")+
+      '</title></circle>';
+  }).join("");
+
+  var baat="";
+  if(medBaat){
+    baat=synlegeBaatar().map(function(f){
+      var t=px(f.lo,f.la), s=r*(f.ved?1.5:1.1);
+      return '<circle class="baat '+(f.g==="brønnbåt"?"bb":"sv")+(f.ved?" ved":"")+
+        '" cx="'+t[0].toFixed(3)+'" cy="'+t[1].toFixed(3)+'" r="'+s.toFixed(4)+
+        '" data-m="'+f.m+'"><title>'+esc(f.nm||("MMSI "+f.m))+
+        (f.ty?" — "+esc(f.ty):"")+(f.ved?" — ligg ved "+esc(f.ved.nm):"")+'</title></circle>';
+    }).join("");
+  }
+  return '<svg id="svgkart" viewBox="'+vbStr()+'" preserveAspectRatio="xMidYMid meet" role="img" '+
+    'aria-label="Kart over norske oppdrettsanlegg">'+stiar+pkt+baat+'</svg>';
+}
+
+function zoomKnappar(){
+  return '<div class="zoom">'+
+    '<button data-zoom="inn" title="Zoom inn" aria-label="Zoom inn">+</button>'+
+    '<button data-zoom="ut" title="Zoom ut" aria-label="Zoom ut">&minus;</button>'+
+    '<button class="nullstill" data-zoom="null" title="Vis heile landet">Alt</button></div>';
+}
+
+function kopleKart(medBaat){
+  var svg=document.getElementById("svgkart"); if(!svg) return;
+  svg.querySelectorAll(".pkt").forEach(function(el){
+    el.addEventListener("click",function(ev){ ev.stopPropagation();
+      S.valt=+el.dataset.n; S.valtBaat=null;
+      var x=LOK[S.valt]; if(x && skala()>0.2) zoomTil(x.lo,x.la,BOKS.w*0.13);
+      teikn(); }); });
+  svg.querySelectorAll(".baat").forEach(function(el){
+    el.addEventListener("click",function(ev){ ev.stopPropagation();
+      S.valtBaat=+el.dataset.m; S.valt=null; teikn(); }); });
+
+  document.querySelectorAll("[data-zoom]").forEach(function(b){
+    b.onclick=function(){
+      var cx=V.x+V.w/2, cy=V.y+V.h/2;
+      if(b.dataset.zoom==="inn") zoomOm(1/1.6,cx,cy);
+      else if(b.dataset.zoom==="ut") zoomOm(1.6,cx,cy);
+      else nullstillVb();
+      teikn();
+    };
+  });
+
+  var boks=svg.parentElement;
+  svg.addEventListener("wheel",function(ev){
+    ev.preventDefault();
+    var r=svg.getBoundingClientRect();
+    var cx=V.x+((ev.clientX-r.left)/r.width)*V.w;
+    var cy=V.y+((ev.clientY-r.top)/r.height)*V.h;
+    zoomOm(ev.deltaY>0?1.22:1/1.22,cx,cy);
+    svg.setAttribute("viewBox",vbStr());
+  },{passive:false});
+
+  var drar=false,sx=0,sy=0,ox=0,oy=0;
+  function ned(ev){ drar=true; svg.classList.add("drar");
+    var p=ev.touches?ev.touches[0]:ev; sx=p.clientX; sy=p.clientY; ox=V.x; oy=V.y; }
+  function flytt(ev){
+    if(!drar) return;
+    var p=ev.touches?ev.touches[0]:ev, r=svg.getBoundingClientRect();
+    V.x=ox-((p.clientX-sx)/r.width)*V.w;
+    V.y=oy-((p.clientY-sy)/r.height)*V.h;
+    svg.setAttribute("viewBox",vbStr());
+  }
+  function opp(){ if(drar){ drar=false; svg.classList.remove("drar"); teiknStorleik(medBaat); } }
+  svg.addEventListener("mousedown",ned); window.addEventListener("mousemove",flytt);
+  window.addEventListener("mouseup",opp);
+  svg.addEventListener("touchstart",ned,{passive:true});
+  svg.addEventListener("touchmove",flytt,{passive:true});
+  svg.addEventListener("touchend",opp);
+  boks.addEventListener("dblclick",function(ev){ ev.preventDefault();
+    var r=svg.getBoundingClientRect();
+    zoomOm(1/1.9, V.x+((ev.clientX-r.left)/r.width)*V.w, V.y+((ev.clientY-r.top)/r.height)*V.h);
+    teikn(); });
+}
+/* teikn punktstorleik på nytt etter panorering utan å bygge alt */
+function teiknStorleik(medBaat){ /* storleik endrar seg berre ved zoom, ikkje panorering */ }
+
+/* ── kartfane ── */
+function teiknKart(){
+  document.getElementById("innhald").innerHTML=
+    '<div class="kartskal"><div class="kartboks">'+kartSvg(false)+zoomKnappar()+
+      '<div class="teikn">'+
+        '<div><s style="background:var(--kritisk)"></s>Over lusegrensa</div>'+
+        '<div><s style="background:var(--varsel)"></s>Nærmar seg grensa</div>'+
+        '<div><s style="background:var(--rolig)"></s>Under grensa</div>'+
+        '<div><s style="background:var(--ink-3);opacity:.4"></s>Ingen rapport</div>'+
+      '</div>'+
+      '<div class="hjelp">Dra for å flytte · rull eller + / &minus; for å zoome</div>'+
+    '</div><div class="panel" id="panel"></div></div>';
+  kopleKart(false); teiknPanel();
+}
+
+/* ── båtfane ── */
+function synlegeBaatar(){
+  var sok=S.sok.toLowerCase().trim();
+  return FARTOY.filter(function(f){
+    if(S.baatfilter==="bb" && f.g!=="brønnbåt") return false;
+    if(S.baatfilter==="ved" && !f.ved) return false;
+    if(S.baatfilter==="sv" && f.g!=="service") return false;
+    if(sok && ((f.nm||"")+" "+(f.de||"")).toLowerCase().indexOf(sok)<0) return false;
+    return true;
+  });
+}
+function teiknBaat(){
+  var b=synlegeBaatar();
+  var valg=[["bb","Brønnbåtar"],["ved","Ligg ved eit anlegg"],["sv","Servicefartøy"],["alle","Alle båtar"]];
+  document.getElementById("innhald").innerHTML=
+    '<div class="kartskal"><div class="kartboks">'+kartSvg(true)+zoomKnappar()+
+      '<div class="teikn">'+
+        '<div><s style="background:var(--baat)"></s>Brønnbåt-type</div>'+
+        '<div><s style="background:var(--ink-3);opacity:.75"></s>Servicefartøy</div>'+
+        '<div><s style="background:var(--baat);box-shadow:0 0 0 2px var(--kritisk)"></s>Ligg ved eit anlegg</div>'+
+      '</div>'+
+      '<div class="hjelp">Dra for å flytte · rull eller + / &minus; for å zoome</div>'+
+    '</div><div class="panel" id="panel">'+
+      '<h3>Båtar akkurat no</h3>'+
+      '<p class="selskap">'+(D.aisTid?("Siste melding "+D.aisTid.slice(11,16)+" UTC, "+D.aisTid.slice(0,10)):"")+'</p>'+
+      '<div class="chips" style="margin-bottom:12px">'+valg.map(function(v){
+        return '<button data-bf="'+v[0]+'" aria-pressed="'+(S.baatfilter===v[0])+'">'+v[1]+'</button>';
+      }).join("")+'</div>'+
+      '<div class="rad"><span>Viser no</span><b>'+b.length+'</b></div>'+
+      '<div class="rad"><span>Brønnbåt-type totalt</span><b>'+D.statistikk.bronnbat+'</b></div>'+
+      '<div class="rad"><span>Ligg ved eit anlegg</span><b>'+
+        FARTOY.filter(function(f){return f.ved;}).length+'</b></div>'+
+      baatInnhald()+
+    '</div></div>';
+  kopleKart(true);
+  document.querySelectorAll("[data-bf]").forEach(function(x){
+    x.onclick=function(){ S.baatfilter=x.dataset.bf; S.valtBaat=null; teiknBaat(); }; });
+  var t=document.getElementById("tilbakeBaat");
+  if(t) t.onclick=function(){ S.valtBaat=null; teiknBaat(); };
+}
+function baatInnhald(){
+  if(S.valtBaat){
+    var f=FARTOY.filter(function(x){return x.m===S.valtBaat;})[0];
+    if(f) return baatKort(f);
+  }
+  var liste=synlegeBaatar().slice().sort(function(a,b){
+    if(!!b.ved!==!!a.ved) return (b.ved?1:0)-(a.ved?1:0);
+    if((b.g==="godkjend")!==(a.g==="godkjend")) return a.g==="godkjend"?-1:1;
+    return (a.nm||"").localeCompare(b.nm||"","nn");
+  }).slice(0,60);
+  if(!liste.length) return '<p class="hint" style="margin-top:12px">Ingen båtar med dette valet.</p>';
+  return '<div class="trend"><h4>'+(S.baatfilter==="ved"?"Ligg ved eit anlegg":"Båtar")+'</h4><div class="liste">'+
+    liste.map(function(f){
+      return '<button class="lrad" data-baat="'+f.m+'"><span>'+esc(f.nm||("MMSI "+f.m))+
+        '<em>'+(f.ved?"ved "+esc(f.ved.nm):(f.gk?"godkjend brønnbåt":esc(f.ty||"")))+'</em></span>'+
+        '<b class="'+(f.ved?"r":"b")+'">'+(f.ved?f.ved.d+" m":(f.fa!=null?f.fa.toFixed(1)+" kn":"—"))+'</b></button>';
+    }).join("")+'</div></div>';
+}
+
+/* Silhuett teikna til fartøyet sine faktiske mål. Ikkje eit foto — eit riss
+   av den verkelege lengda og breidda, med eit menneske på 1,8 m til samanlikning. */
+function silhuett(lengd,breidd){
+  var L=lengd||60, B=breidd||Math.max(8,L*0.17);
+  var W=260, H=68, m=14;
+  var sk=(W-m*2)/Math.max(L,40);
+  var l=L*sk, b=Math.max(7,B*sk*1.7), x=m, y=H/2;
+  var baug=x+l, hekk=x;
+  var d='M'+hekk+' '+(y-b/2)+' L'+(baug-l*0.22)+' '+(y-b/2)+
+        ' Q'+baug+' '+(y-b/2)+' '+baug+' '+y+
+        ' Q'+baug+' '+(y+b/2)+' '+(baug-l*0.22)+' '+(y+b/2)+
+        ' L'+hekk+' '+(y+b/2)+' Z';
+  var hus='M'+(x+l*0.06)+' '+(y-b/2)+' L'+(x+l*0.06)+' '+(y-b/2-b*0.55)+
+          ' L'+(x+l*0.3)+' '+(y-b/2-b*0.55)+' L'+(x+l*0.3)+' '+(y-b/2)+' Z';
+  var mann=1.8*sk;
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Riss av fartøyet i rett storleik">'+
+    '<path d="'+d+'" fill="var(--baat)" opacity="0.9"/>'+
+    '<path d="'+hus+'" fill="var(--baat)" opacity="0.55"/>'+
+    '<line x1="'+x+'" y1="'+(H-6)+'" x2="'+(x+l)+'" y2="'+(H-6)+'" stroke="var(--ink-3)" stroke-width="1"/>'+
+    '<line x1="'+x+'" y1="'+(H-9)+'" x2="'+x+'" y2="'+(H-3)+'" stroke="var(--ink-3)" stroke-width="1"/>'+
+    '<line x1="'+(x+l)+'" y1="'+(H-9)+'" x2="'+(x+l)+'" y2="'+(H-3)+'" stroke="var(--ink-3)" stroke-width="1"/>'+
+    (mann>2?'<rect x="'+(x+l+4)+'" y="'+(y-mann/2)+'" width="'+Math.max(1.2,mann*0.3)+'" height="'+mann+'" fill="var(--ink-3)" opacity="0.6"/>':'')+
+    '</svg>';
+}
+
+function kompassSvg(kurs){
+  var r=17, c=20, a=(kurs-90)*Math.PI/180;
+  return '<svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Kurs '+Math.round(kurs)+' grader">'+
+    '<circle cx="'+c+'" cy="'+c+'" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="1.5"/>'+
+    '<line x1="'+c+'" y1="'+c+'" x2="'+(c+Math.cos(a)*(r-3)).toFixed(1)+'" y2="'+(c+Math.sin(a)*(r-3)).toFixed(1)+
+      '" stroke="var(--baat)" stroke-width="2.5" stroke-linecap="round"/>'+
+    '<circle cx="'+c+'" cy="'+c+'" r="2.4" fill="var(--baat)"/>'+
+    '<text x="'+c+'" y="7" text-anchor="middle" font-size="7" fill="var(--ink-3)" font-family="monospace">N</text>'+
+    '</svg>';
+}
+
+function himmelretning(g){
+  var r=["nord","nordaust","aust","søraust","sør","sørvest","vest","nordvest"];
+  return r[Math.round(g/45)%8];
+}
+
+function baatKort(f){
+  var merke = f.gk ? ['bm-godkjend','Godkjend brønnbåt']
+            : f.g==="brønnbåt" ? ['bm-uviss','Melder brønnbåt-type']
+            : ['bm-anna', f.ty||'Fartøy'];
+
+  var h='<button class="tilbake" id="tilbakeBaat">&larr; Tilbake til lista</button>'+
+    '<span class="baatmerke '+merke[0]+'">'+esc(merke[1])+'</span>'+
+    '<h3>'+esc(f.nm||("MMSI "+f.m))+'</h3>'+
+    '<p class="selskap">'+esc(f.gk?f.gk.v:(f.ty||"ukjend type"))+'</p>'+
+    '<div class="silhuett">'+silhuett(f.le,f.br)+
+      '<p>'+(f.le?f.le+" meter lang":"lengd ukjend")+
+      (f.le?' · strekt til rett storleik':'')+'</p></div>';
+
+  if(f.fa!=null || f.ku!=null){
+    h+='<div class="kompass">'+(f.ku!=null?kompassSvg(f.ku):'')+
+      '<div><b>'+(f.fa!=null?f.fa.toFixed(1)+" kn":"—")+'</b>'+
+      '<span>'+(f.fa!=null&&f.fa<0.5?"ligg stille":
+        (f.ku!=null?"på veg mot "+himmelretning(f.ku)+" ("+Math.round(f.ku)+"°)":"i fart"))+'</span></div></div>';
+  }
+
+  if(f.ved){
+    h+='<div class="sone" style="background:var(--baat-soft);color:var(--baat)"><b>Ligg ved eit anlegg</b>'+
+      esc(f.ved.nm)+' — '+f.ved.d+' meter unna</div>';
+  }
+
+  h+='<div class="rad"><span>Kallesignal</span><b>'+esc(f.ks||"—")+'</b></div>'+
+     '<div class="rad"><span>MMSI</span><b>'+f.m+'</b></div>'+
+     '<div class="rad"><span>Lengd</span><b>'+(f.le?f.le+" m":"—")+'</b></div>'+
+     '<div class="rad"><span>Skipstype i AIS</span><b>'+esc(f.ty||"—")+'</b></div>'+
+     '<div class="rad"><span>Melder destinasjon</span><b>'+esc(f.de||"—")+'</b></div>'+
+     '<div class="rad"><span>Posisjon</span><b>'+f.la.toFixed(4)+', '+f.lo.toFixed(4)+'</b></div>'+
+     '<div class="rad"><span>Siste melding</span><b>'+esc((f.t||"").slice(11,16))+' UTC</b></div>';
+
+  if(f.gk){
+    h+='<div class="trend"><h4>Godkjenning frå Mattilsynet</h4>'+
+      '<div class="rad"><span>Reiarlag</span><b>'+esc(f.gk.v)+'</b></div>'+
+      (f.gk.o?'<div class="rad"><span>Organisasjonsnr</span><b>'+esc(f.gk.o)+'</b></div>':'')+
+      (f.gk.fy?'<div class="rad"><span>Fylke</span><b>'+esc(f.gk.fy)+'</b></div>':'')+
+      '<div class="rad"><span>Godkjend til</span><b>'+esc(f.gk.til||"utan sluttdato")+'</b></div>'+
+      '<p class="hint" style="font-size:11.5px;margin-top:7px">Denne båten står i Mattilsynet '+
+      'si liste over godkjende transporteiningar for levande fisk. Då er det ein brønnbåt, '+
+      'ikkje ein slaktebåt.</p></div>';
+  } else if(f.g==="brønnbåt"){
+    h+='<div class="aatvaring">Denne båten melder skipstypen «Fish Carrier» i AIS, men står '+
+      '<b>ikkje</b> i Mattilsynet si liste over godkjende brønnbåtar. Det kan vere ein '+
+      'slaktebåt, eller ein båt med utgått godkjenning. Ikkje rekn med at det er ei avlusing.</div>';
+  }
+  h+='<p class="hint" style="font-size:11.5px;margin-top:12px">Vi har ikkje foto av båtane — '+
+     'det finst inga fri biletkjelde vi kan bruke. Rissa over er teikna frå dei faktiske måla.</p>';
+  return h;
+}
+
+/* ── panel for anlegg ── */
+function teiknPanel(){
+  var el=document.getElementById("panel"); if(!el) return;
+  var l=LOK[S.valt];
+  if(!l){
+    var over=D.lokalitetar.filter(function(x){return x.lus!=null&&x.lus>x.gr;})
+      .sort(function(a,b){return (b.lus/b.gr)-(a.lus/a.gr);});
+    var naer=D.lokalitetar.filter(function(x){return x.lus!=null&&x.lus<=x.gr&&x.lus>x.gr*0.6;}).length;
+    el.innerHTML='<h3>Vel eit anlegg</h3>'+
+      '<p class="selskap">Trykk på ein prikk i kartet, eller på eit namn i lista under.</p>'+
+      '<div class="rad"><span>Anlegg i sjøen</span><b>'+D.lokalitetar.length+'</b></div>'+
+      '<div class="rad"><span>Med luserapport denne veka</span><b>'+
+        D.lokalitetar.filter(function(x){return x.lus!=null;}).length+'</b></div>'+
+      '<div class="rad"><span>Nærmar seg grensa</span><b>'+naer+'</b></div>'+
+      '<div class="rad"><span>Over grensa</span><b>'+over.length+'</b></div>'+
+      (over.length?'<div class="trend"><h4>Over lusegrensa denne veka</h4><div class="liste">'+
+        over.map(function(x){
+          return '<button class="lrad" data-n="'+x.n+'"><span>'+esc(x.nm)+'<em>'+esc(x.s||"")+
+            '</em></span><b class="r">'+x.lus.toFixed(2)+'</b></button>';
+        }).join("")+'</div></div>':'');
+    el.querySelectorAll("[data-n]").forEach(function(b){
+      b.onclick=function(){ S.valt=+b.dataset.n; var x=LOK[S.valt];
+        if(x) zoomTil(x.lo,x.la,BOKS.w*0.16); teikn(); }; });
+    return;
+  }
+
+  var st=status(l);
+  var stTekst={p_over:"",}; // plasshaldar
+  var boks = st==="p-over" ? ["s-over", l.lus.toFixed(2), "Over lusegrensa på "+l.gr+". Tiltak skal setjast inn omgåande."]
+    : st==="p-naer" ? ["s-naer", l.lus.toFixed(2), "Nærmar seg grensa på "+l.gr+"."]
+    : st==="p-ok" ? ["s-ok", l.lus.toFixed(2), "Under grensa på "+l.gr+"."]
+    : ["s-ingen","—","Ingen luserapport denne veka. Det tyder ukjent, ikkje trygt."];
+
+  var baatVed=FARTOY.filter(function(f){return f.ved&&f.ved.n===l.n;});
+
+  var h='<button class="tilbake" id="tilbake">&larr; Alle anlegg</button>'+
+    '<h3>'+esc(l.nm)+'</h3><p class="selskap">'+esc(l.s||"ukjend eigar")+'</p>'+
+    '<div class="status-stor '+boks[0]+'"><b>'+boks[1]+'</b><span>'+esc(boks[2])+'</span></div>'+
+    '<div class="rad"><span>Vaksne holus per fisk</span><b>'+(l.lus!=null?l.lus.toFixed(2):"—")+'</b></div>'+
+    '<div class="rad"><span>Lusegrense denne veka</span><b>'+l.gr+'</b></div>'+
+    '<div class="rad"><span>Område</span><b>'+esc(poTekst(l.po)||"—")+'</b></div>'+
+    '<div class="rad"><span>Fylke</span><b>'+esc(l.f||"—")+'</b></div>'+
+    '<div class="rad"><span>Største lov biomasse</span><b>'+(l.k!=null?l.k.toLocaleString("nn-NO")+" t":"—")+'</b></div>'+
+    '<div class="rad"><span>Fisk i sjøen</span><b>'+(l.fisk===true?"ja":l.fisk===false?"nei":"ukjent")+'</b></div>'+
+    '<div class="rad"><span>Kommune</span><b>'+esc(l.km||"—")+'</b></div>'+
+    ((l.ar&&l.ar.length)?'<div class="rad"><span>Løyve for</span><b>'+esc(l.ar.slice(0,3).join(", "))+'</b></div>':'')+
+    (baatVed.length?'<div class="rad"><span>Båt ved anlegget no</span><b>'+
+      esc(baatVed[0].nm||("MMSI "+baatVed[0].m))+'</b></div>':'')+
+    '<div class="rad"><span>Lokalitetsnummer</span><b>'+l.n+'</b></div>'+
+    ((l.so&&l.so.length)?'<div class="sone"><b>I sjukdomssone</b>'+
+      l.so.map(function(z){return esc(z.t)+(z.f?" ("+esc(z.f)+")":"");}).join("<br>")+
+      '</div>':'');
+
+  var hist=l.hist||[], tal=hist.filter(function(v){return v!=null;});
+  if(tal.length>1){
+    var maks=Math.max.apply(null,tal.concat([l.gr]))*1.2, W=260,H=56, steg=W/(hist.length-1), d="",open=false;
+    hist.forEach(function(v,i){ if(v==null){open=false;return;}
+      var x=i*steg,y=H-(v/maks)*H; d+=(open?"L":"M")+x.toFixed(1)+" "+y.toFixed(1); open=true; });
+    var gy=H-(l.gr/maks)*H;
+    h+='<div class="trend"><h4>Lusetal siste '+hist.length+' veker</h4>'+
+      '<svg viewBox="0 0 '+W+' '+(H+4)+'" preserveAspectRatio="none">'+
+      '<line x1="0" y1="'+gy.toFixed(1)+'" x2="'+W+'" y2="'+gy.toFixed(1)+
+        '" stroke="var(--kritisk)" stroke-width="1" stroke-dasharray="4 3"/>'+
+      '<path d="'+d+'" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>'+
+      hist.map(function(v,i){ return v==null?"":'<circle cx="'+(i*steg).toFixed(1)+'" cy="'+
+        (H-(v/maks)*H).toFixed(1)+'" r="2.4" fill="var(--accent)"/>'; }).join("")+
+      '</svg><p class="hint" style="font-size:11.5px;margin-top:5px">Raud stipla linje er lusegrensa på '+l.gr+'.</p></div>';
+  }
+  h+=fjordBolk(l);
+  h+='<button class="folg'+(erMitt(l.n)?" av":"")+'" id="folg">'+
+    (erMitt(l.n)?"Følgjer dette anlegget ✓":"Følg dette anlegget")+'</button>';
+  el.innerHTML=h;
+  document.getElementById("tilbake").onclick=function(){ S.valt=null; nullstillVb(); teikn(); };
+  el.querySelectorAll("[data-ring]").forEach(function(b){
+    b.onclick=function(){ S.ring=+b.dataset.ring; teiknPanel(); }; });
+  el.querySelectorAll("[data-gaa]").forEach(function(b){
+    b.onclick=function(){ S.valt=+b.dataset.gaa; teikn(); }; });
+  document.getElementById("folg").onclick=function(){
+    if(erMitt(l.n)) S.mine=S.mine.filter(function(x){return x!==l.n;});
+    else S.mine=S.mine.concat([l.n]);
+    lagreMine(); teiknRail(); teikn();
+  };
+}
+
+/* ── hendingar ── */
+document.addEventListener("click",function(e){
+  var b=e.target.closest("button"); if(!b) return;
+  if(b.dataset.fane){ S.fane=b.dataset.fane;
+    document.querySelectorAll('[role="tab"]').forEach(function(t){
+      t.setAttribute("aria-selected",String(t.dataset.fane===S.fane)); });
+    teiknRail(); teikn(); return; }
+  if(b.dataset.rolle){ S.rolle=b.dataset.rolle; S.vis=30;
+    document.querySelectorAll("[data-rolle]").forEach(function(t){
+      t.setAttribute("aria-pressed",String(t.dataset.rolle===S.rolle)); });
+    teiknRail(); teikn(); return; }
+  if(b.dataset.fjern){ var n=+b.dataset.fjern;
+    S.mine=S.mine.filter(function(x){return x!==n;}); lagreMine(); teiknRail(); teikn(); return; }
+  if(b.dataset.baat){ S.valtBaat=+b.dataset.baat;
+    var f=FARTOY.filter(function(x){return x.m===S.valtBaat;})[0];
+    if(f) zoomTil(f.lo,f.la,BOKS.w*0.1); teiknBaat(); return; }
+  if(b.dataset.seg){ S.seg=b.dataset.seg; S.vis=30; teiknRail(); teikn(); return; }
+  if("po" in b.dataset){ S.po=b.dataset.po===""?null:+b.dataset.po; S.vis=30; teiknRail(); teikn(); return; }
+  if("type" in b.dataset){ S.type=b.dataset.type===""?null:b.dataset.type; S.vis=30; teiknRail(); teikn(); return; }
+  if("per" in b.dataset){ S.periode=b.dataset.per===""?null:+b.dataset.per; S.vis=30; teiknRail(); teikn(); return; }
+});
+
+var tid=null;
+document.getElementById("sok").addEventListener("input",function(e){
+  clearTimeout(tid); var v=e.target.value;
+  tid=setTimeout(function(){ S.sok=v; S.vis=30; teikn(); },170);
+});
+
+function teikn(){
+  if(S.fane==="feed") teiknFeed();
+  else if(S.fane==="kart") teiknKart();
+  else if(S.fane==="anlegg") teiknAnlegg();
+  else teiknBaat();
+}
+
+document.getElementById("vekemerke").textContent="lusetal frå veke "+D.veke.uke+", "+D.veke.aar;
+document.getElementById("bygdmerke").textContent=
+  "Oppdatert "+D.bygd.slice(0,10)+" kl. "+D.bygd.slice(11,16)+" UTC. "+
+  "Ei rapportveke er aldri heilt ferdig — rader kjem inn i minst ti dagar etter fristen, som er tysdag i påfølgande veke.";
+teiknRail(); teikn();
+})();
+</script>

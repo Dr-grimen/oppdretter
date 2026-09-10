@@ -1,0 +1,23 @@
+{
+  "name": "oppdretter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "fase0:opent": "node --experimental-strip-types src/fase0-opent.ts",
+    "sjekk:register": "node --experimental-strip-types src/ingest/sjekk-register.ts",
+    "sjekk:po": "node --experimental-strip-types src/ingest/sjekk-po.ts",
+    "over-grensa": "node --experimental-strip-types src/events/over-grensa.ts",
+    "bygg": "node --experimental-strip-types src/bygg-app.ts",
+    "arkiver": "node --experimental-strip-types src/arkiver.ts",
+    "dagleg": "./scripts/snapshot.sh && npm run arkiver && npm run bygg && ./scripts/bygg-side.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
