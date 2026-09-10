@@ -304,6 +304,9 @@ export function finnSoknader(soknader: Soknad[], c: Ctx, opne: boolean): Hending
     if (s.netdata_depth_value) bitar.push(`notdjupn ${Math.round(s.netdata_depth_value / 100)} m`);
 
     const stor = (mtb ?? 0) >= 3000;
+    // RETURNED = sendt i retur til søkjaren. Det er ikkje ein aktiv søknad,
+    // og skal ikkje lesast som «dei skal bygge no».
+    const returnert = s.status_application === "RETURNED";
     ut.push({
       lokalitetsnr: s.sitenr,
       lokalitetsnamn: s.sitename ?? "Ny lokalitet",
@@ -316,14 +319,17 @@ export function finnSoknader(soknader: Soknad[], c: Ctx, opne: boolean): Hending
       lon: l?.lon ?? null,
       natural_key: `soknad:${s.applicationno}:${opne ? "open" : "avgjort"}`,
       type: opne ? "ny_soknad" : "soknad_avgjort",
-      tittel: opne
-        ? `${s.applicantorganisationname} søkjer om ${s.sitename ?? "ny lokalitet"}`
-        : `Søknad avgjort: ${s.sitename ?? s.applicationno}`,
+      tittel: !opne
+        ? `Søknad avgjort: ${s.sitename ?? s.applicationno}`
+        : returnert
+          ? `${s.applicantorganisationname} fekk søknaden om ${s.sitename ?? "ny lokalitet"} i retur`
+          : `${s.applicantorganisationname} søkjer om ${s.sitename ?? "ny lokalitet"}`,
       detalj:
+        (returnert ? "Sendt i retur til søkjaren — ikkje ein aktiv søknad. " : "") +
         `${s.soeknadstype}${s.municipalityname ? `, ${s.municipalityname}` : ""}. ` +
         (bitar.length ? `${bitar.join(", ")}. ` : "") +
         (s.netdata_typedescription ? `Not: ${s.netdata_typedescription.slice(0, 120)}` : ""),
-      alvor: stor ? 3 : opne ? 2 : 1,
+      alvor: returnert ? 1 : stor ? 3 : opne ? 2 : 1,
       relevans: {
         not: { score: stor ? 90 : 60, why: "Ein søknad med oppgitt notdjupn og nottype er ei innkjøpsspesifikasjon i praksis." },
         fortoying: { score: stor ? 85 : 55, why: "Ny lokalitet krev heilt nytt fortøyingsanlegg. Lang leveringstid." },

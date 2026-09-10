@@ -1417,6 +1417,14 @@ function oppdaterLagval(){
 var kartObs=null;
 function kopleKart(medBaat){
   var boks=document.getElementById("lkart");
+  // teiknKart() og teiknBaat() byter ut heile #innhald, så DIV-en Leaflet var
+  // bunden til blir kasta ut og erstatta av ein ny, tom ein. Utan denne testen
+  // held Leaflet fram med å teikne på den utkasta noden, og kartet er ein tom
+  // grå boks frå og med andre gong du opnar fana.
+  if(kart && kart.getContainer() !== boks){
+    if(kartObs){ kartObs.disconnect(); kartObs=null; }
+    kart.remove(); kart=null; flislag=null; poLag=null; punktLag=null; baatLag=null;
+  }
   if(!kart){ byggKart(); } 
   // Leaflet må måle containeren ETTER at layouten har lagt seg, elles blir
   // kartlerretet feil storleik og punkta hamnar utanfor.

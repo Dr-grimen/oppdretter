@@ -97,7 +97,11 @@ const hendingar: Hending[] = [
   ...finnBehandling(sisteRapportar, c),
   ...finnKlynger(sisteRapportar, c),
   ...finnSjukdom(sjukdom, c),
-  ...finnSoknader(opneSok.filter((s) => ["UNDER_TREATMENT", "RECEIVED", "RETURNED"].includes(s.status_application)), c, true),
+  // Lag 0 ER søknadene under behandling. Statusane som faktisk finst er
+  // SUBMITTED (273) og RETURNED (36) — «UNDER_TREATMENT» og «RECEIVED» finst
+  // ikkje. Eit filter på dei kasta 273 av 309 søknader og heldt att berre dei
+  // som var sende i retur til søkjaren.
+  ...finnSoknader(opneSok, c, true),
 ];
 
 // Idempotens: same natural_key skal aldri gi to hendingar.
