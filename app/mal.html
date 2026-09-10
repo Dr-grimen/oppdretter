@@ -13,6 +13,8 @@
   --hav:#DDE6E5; --baat:#2C5C86; --baat-soft:#DEE8F1;
   --skug:0 1px 2px rgba(15,30,29,.05), 0 4px 14px rgba(15,30,29,.05);
   --r:8px;
+  --topp:118px;   /* høgda på topp + rollelinje, til sticky */
+  --botn-bar:0px;
   --display:"Familjen Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --body:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -77,7 +79,7 @@ input{font:inherit}
 /* ── skal ───────────────────────────────────────────── */
 .skal{max-width:1440px;margin:0 auto;padding:16px 18px 50px;display:grid;grid-template-columns:246px minmax(0,1fr);gap:20px;align-items:start}
 @media(max-width:940px){.skal{grid-template-columns:1fr;gap:14px}}
-.rail{position:sticky;top:118px;display:flex;flex-direction:column;gap:17px}
+.rail{position:sticky;top:calc(var(--topp) + 8px);display:flex;flex-direction:column;gap:17px}
 @media(max-width:940px){.rail{position:static;flex-direction:row;overflow-x:auto;gap:14px;padding-bottom:4px}.bolk{min-width:max-content}}
 .bolk h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);margin-bottom:8px;font-weight:600}
 .bolk .forklar{font-size:12px;color:var(--ink-3);margin:0 0 8px;line-height:1.4}
@@ -131,7 +133,7 @@ input{font:inherit}
 .liste-topp h2{font-size:17px}
 .liste-topp p{margin:0;font-size:13px;color:var(--ink-3)}
 .reg{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden}
-.bokstav{padding:6px 15px;background:var(--surface-2);font-family:var(--display);font-weight:600;font-size:12px;color:var(--ink-3);letter-spacing:.06em;border-bottom:1px solid var(--line-2);position:sticky;top:118px;z-index:5}
+.bokstav{padding:6px 15px;background:var(--surface-2);font-family:var(--display);font-weight:600;font-size:12px;color:var(--ink-3);letter-spacing:.06em;border-bottom:1px solid var(--line-2);position:sticky;top:calc(var(--topp) + 8px);z-index:5}
 .arad{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;gap:11px;align-items:center;padding:9px 15px;border-bottom:1px solid var(--line-2);width:100%;text-align:left}
 .arad:last-child{border-bottom:0}
 .arad:hover{background:var(--surface-2)}
@@ -181,7 +183,7 @@ input{font:inherit}
 .hjelp{position:absolute;right:10px;bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--ink-3);box-shadow:var(--skug)}
 
 /* ── panel ──────────────────────────────────────────── */
-.panel{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:15px;position:sticky;top:118px}
+.panel{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:15px;position:sticky;top:calc(var(--topp) + 8px)}
 @media(max-width:940px){.panel{position:static}}
 .panel h3{font-size:16.5px;margin-bottom:2px}
 .panel .selskap{font-size:13px;color:var(--ink-2);margin:0 0 12px}
@@ -247,6 +249,93 @@ input{font:inherit}
 .botn{max-width:1440px;margin:0 auto;padding:20px 18px 40px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3);line-height:1.6}
 .botn p{margin:0 0 6px;max-width:80ch}
 .botn b{color:var(--ink-2);font-weight:600}
+
+/* ══ MOBIL ═══════════════════════════════════════════════════════
+   Under 720 px: fanene flyttar seg ned der tommelen er, filtera
+   ligg i ei skuff, og alle klikkflater er minst 44 px.            */
+.botnfaner{display:none}
+.skuff-bak{display:none}
+@media(max-width:720px){
+  :root{--topp:52px; --botn-bar:60px}
+  body{padding-bottom:calc(var(--botn-bar) + env(safe-area-inset-bottom,0px))}
+
+  /* topplinja blir smal: berre namn og veke */
+  .topp-inn{padding:9px 14px;gap:10px}
+  .merke h1{font-size:17px}
+  .merke .und{font-size:11px}
+  .topp .faner{display:none}
+
+  /* rollelinja: rolleval + søk under kvarandre */
+  .rolle-inn{padding:8px 14px;gap:8px}
+  .rolle-inn>span{display:none}
+  .rolle-val{flex:1}
+  .rolle-val button{flex:1;padding:9px 10px;font-size:14px}
+  .sok{margin-left:0;width:100%;min-width:0;padding:9px 14px}
+  .sok input{font-size:16px}          /* under 16px zoomar iOS inn ved fokus */
+
+  .skal{padding:12px 14px 20px;gap:12px}
+
+  /* sidepanelet blir ei skuff nedanfrå */
+  .rail{position:fixed;left:0;right:0;bottom:0;z-index:60;
+    background:var(--surface);border-top:1px solid var(--line);
+    border-radius:16px 16px 0 0;box-shadow:0 -8px 32px rgba(0,0,0,.22);
+    flex-direction:column;gap:16px;overflow-y:auto;
+    max-height:78vh;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px));
+    transform:translateY(101%);transition:transform .22s ease;visibility:hidden}
+  .rail.open{transform:translateY(0);visibility:visible}
+  .rail::before{content:"";position:absolute;left:50%;top:7px;width:38px;height:4px;
+    margin-left:-19px;border-radius:2px;background:var(--line)}
+  .rail .bolk{min-width:0}
+  .rail .bolk:first-child{margin-top:10px}
+  .seg{flex-direction:column}
+  .seg button{padding:11px 12px;font-size:15px}
+  .chips button{padding:9px 14px;font-size:14px}
+  .mine .m{padding:10px 11px}
+  .mine .m button{padding:6px 8px;font-size:20px}
+
+  .skuff-bak{display:block;position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.35);
+    opacity:0;pointer-events:none;transition:opacity .22s}
+  .skuff-bak.open{opacity:1;pointer-events:auto}
+
+  /* botnlinje med faner */
+  .botnfaner{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;
+    background:var(--surface);border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom,0px)}
+  .botnfaner button{flex:1;display:flex;flex-direction:column;align-items:center;
+    gap:2px;padding:8px 2px 7px;font-size:10.5px;color:var(--ink-3);
+    font-family:var(--display);font-weight:600;min-height:56px;justify-content:center}
+  .botnfaner button[aria-selected="true"],.botnfaner button[aria-expanded="true"]{color:var(--accent)}
+  .botnfaner svg{width:21px;height:21px;stroke-width:1.7}
+  .botnfaner .prikk{position:absolute;top:6px;margin-left:15px;width:7px;height:7px;
+    border-radius:50%;background:var(--accent)}
+
+  /* kart og panel */
+  .kartboks{height:calc(100vh - var(--topp) - var(--botn-bar) - 120px);min-height:340px}
+  .zoom{right:12px;top:12px;gap:7px}
+  .zoom button{width:44px;height:44px;font-size:20px}
+  .teikn{font-size:11px;padding:8px 10px;left:12px;bottom:12px}
+  .hjelp{display:none}
+  .panel{padding:14px}
+  .liste{max-height:none}
+
+  /* feed */
+  .kort{padding:13px 14px}
+  .kort h3{font-size:15.5px}
+  .kort .detalj{font-size:14.5px}
+  .feed-topp h2{font-size:18px}
+
+  /* anleggslista */
+  .arad{padding:11px 13px;gap:10px}
+  .arad .nal{width:40px;height:40px}
+  .arad .namn b{font-size:15px}
+  .ringar button{padding:10px 0;font-size:13.5px}
+  .meir{padding:12px 22px;font-size:14.5px}
+}
+@media(max-width:380px){
+  .arad{grid-template-columns:36px minmax(0,1fr) auto}
+  .rolle-val button{font-size:13px;padding:9px 6px}
+}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
@@ -276,9 +365,12 @@ input{font:inherit}
 </div>
 
 <main class="skal">
-  <aside class="rail" id="rail"></aside>
+  <aside class="rail" id="rail" aria-label="Filter"></aside>
   <section id="innhald"></section>
 </main>
+
+<div class="skuff-bak" id="skuffbak" aria-hidden="true"></div>
+<nav class="botnfaner" id="botnfaner" aria-label="Hovudmeny"></nav>
 
 <footer class="botn">
   <p><b>Kjelder.</b> Lakselus, sjukdom og behandlingar: Mattilsynet. Lokalitetar, løyve, produksjonsområde og søknader: Fiskeridirektoratet. Sjukdomssoner: BarentsWatch. Fartøy: Kystdatahuset hos Kystverket.</p>
@@ -303,7 +395,7 @@ var LOK = {}; D.lokalitetar.forEach(function(l){ LOK[l.n]=l; });
 var FARTOY = D.fartoy || [];
 
 var S = {fane:"feed", rolle:"drift", seg:"alle", po:null, type:null,
-         vis:30, valt:null, valtBaat:null, sok:"", mine:[], baatfilter:"bb", ring:20, periode:null};
+         vis:30, valt:null, valtBaat:null, sok:"", mine:[], baatfilter:"bb", ring:20, periode:null, skuff:false};
 
 /* mine anlegg — berre i denne nettlesaren */
 try{ var lagra=localStorage.getItem("oppdretter.mine"); if(lagra) S.mine=JSON.parse(lagra); }catch(e){}
@@ -377,6 +469,38 @@ function filtrert(){
     var d=rangering(b)-rangering(a);
     return d!==0?d:(a.dato<b.dato?1:-1);
   });
+}
+
+/* ── botnlinje på mobil ── */
+var IKON = {
+  feed:'<path d="M3 5h18M3 12h18M3 19h12"/>',
+  kart:'<path d="M9 3 3 5.5v15L9 18l6 3 6-2.5v-15L15 6z"/><path d="M9 3v15M15 6v15"/>',
+  anlegg:'<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.4"/><circle cx="8" cy="12" r="1.4"/><circle cx="8" cy="18" r="1.4"/>',
+  baat:'<path d="M3 17c1.5 1.3 3 1.3 4.5 0S10.5 15.7 12 17s3 1.3 4.5 0 3-1.3 4.5 0"/><path d="M5 14 6.5 8h11L19 14z"/><path d="M12 8V4"/>',
+  filter:'<path d="M4 5h16M7 12h10M10 19h4"/>'
+};
+function ikonSvg(k){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" '+
+    'stroke-linejoin="round" aria-hidden="true">'+IKON[k]+'</svg>';
+}
+function teiknBotnfaner(){
+  var f=[["feed","Varsel"],["kart","Kart"],["anlegg","Anlegg"],["baat","Båtar"]];
+  var aktiveFilter = (S.po!==null)||(S.type!==null)||(S.periode!==null)||
+                     (S.rolle==="lev"&&S.seg!=="alle")||(S.rolle==="drift"&&S.mine.length>0);
+  document.getElementById("botnfaner").innerHTML =
+    f.map(function(x){
+      return '<button role="tab" data-fane="'+x[0]+'" aria-selected="'+(S.fane===x[0])+'">'+
+        ikonSvg(x[0])+'<span>'+x[1]+'</span></button>';
+    }).join("") +
+    '<button id="filterknapp" aria-expanded="'+(S.skuff?"true":"false")+'" aria-controls="rail">'+
+      ikonSvg("filter")+(aktiveFilter?'<i class="prikk"></i>':'')+'<span>Filter</span></button>';
+}
+function opneSkuff(pa){
+  S.skuff=pa;
+  document.getElementById("rail").classList.toggle("open",pa);
+  document.getElementById("skuffbak").classList.toggle("open",pa);
+  document.body.style.overflow = pa ? "hidden" : "";
+  teiknBotnfaner();
 }
 
 /* ── sidepanel ── */
@@ -792,7 +916,6 @@ function teiknPanel(){
   }
 
   var st=status(l);
-  var stTekst={p_over:"",}; // plasshaldar
   var boks = st==="p-over" ? ["s-over", l.lus.toFixed(2), "Over lusegrensa på "+l.gr+". Tiltak skal setjast inn omgåande."]
     : st==="p-naer" ? ["s-naer", l.lus.toFixed(2), "Nærmar seg grensa på "+l.gr+"."]
     : st==="p-ok" ? ["s-ok", l.lus.toFixed(2), "Under grensa på "+l.gr+"."]
@@ -850,25 +973,29 @@ function teiknPanel(){
 }
 
 /* ── hendingar ── */
+document.getElementById("skuffbak").addEventListener("click",function(){ opneSkuff(false); });
+document.addEventListener("keydown",function(e){ if(e.key==="Escape"&&S.skuff) opneSkuff(false); });
+
 document.addEventListener("click",function(e){
+  if(e.target.closest("#filterknapp")){ opneSkuff(!S.skuff); return; }
   var b=e.target.closest("button"); if(!b) return;
-  if(b.dataset.fane){ S.fane=b.dataset.fane;
+  if(b.dataset.fane){ S.fane=b.dataset.fane; if(S.skuff) opneSkuff(false);
     document.querySelectorAll('[role="tab"]').forEach(function(t){
       t.setAttribute("aria-selected",String(t.dataset.fane===S.fane)); });
-    teiknRail(); teikn(); return; }
+    teiknRail(); teiknBotnfaner(); teikn(); window.scrollTo(0,0); return; }
   if(b.dataset.rolle){ S.rolle=b.dataset.rolle; S.vis=30;
     document.querySelectorAll("[data-rolle]").forEach(function(t){
       t.setAttribute("aria-pressed",String(t.dataset.rolle===S.rolle)); });
-    teiknRail(); teikn(); return; }
+    teiknRail(); teiknBotnfaner(); teikn(); return; }
   if(b.dataset.fjern){ var n=+b.dataset.fjern;
     S.mine=S.mine.filter(function(x){return x!==n;}); lagreMine(); teiknRail(); teikn(); return; }
   if(b.dataset.baat){ S.valtBaat=+b.dataset.baat;
     var f=FARTOY.filter(function(x){return x.m===S.valtBaat;})[0];
     if(f) zoomTil(f.lo,f.la,BOKS.w*0.1); teiknBaat(); return; }
-  if(b.dataset.seg){ S.seg=b.dataset.seg; S.vis=30; teiknRail(); teikn(); return; }
-  if("po" in b.dataset){ S.po=b.dataset.po===""?null:+b.dataset.po; S.vis=30; teiknRail(); teikn(); return; }
-  if("type" in b.dataset){ S.type=b.dataset.type===""?null:b.dataset.type; S.vis=30; teiknRail(); teikn(); return; }
-  if("per" in b.dataset){ S.periode=b.dataset.per===""?null:+b.dataset.per; S.vis=30; teiknRail(); teikn(); return; }
+  if(b.dataset.seg){ S.seg=b.dataset.seg; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
+  if("po" in b.dataset){ S.po=b.dataset.po===""?null:+b.dataset.po; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
+  if("type" in b.dataset){ S.type=b.dataset.type===""?null:b.dataset.type; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
+  if("per" in b.dataset){ S.periode=b.dataset.per===""?null:+b.dataset.per; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
 });
 
 var tid=null;
@@ -888,6 +1015,6 @@ document.getElementById("vekemerke").textContent="lusetal frå veke "+D.veke.uke
 document.getElementById("bygdmerke").textContent=
   "Oppdatert "+D.bygd.slice(0,10)+" kl. "+D.bygd.slice(11,16)+" UTC. "+
   "Ei rapportveke er aldri heilt ferdig — rader kjem inn i minst ti dagar etter fristen, som er tysdag i påfølgande veke.";
-teiknRail(); teikn();
+teiknRail(); teiknBotnfaner(); teikn();
 })();
 </script>
