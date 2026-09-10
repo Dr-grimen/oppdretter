@@ -1,6 +1,652 @@
 <title>Oppdretter</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
+/* ── Leaflet 1.9.4, biletreglar fjerna (CSP i Artifacts blokkerer eksterne bilete) ── */
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+/* ── vår eigen stil ── */
+
 :root{
   --ground:#EEF2F1; --surface:#FFFFFF; --surface-2:#F6F9F8;
   --ink:#0F1E1D; --ink-2:#4C5F5D; --ink-3:#7A8A88;
@@ -160,6 +806,20 @@ input{font:inherit}
 .kartboks{background:var(--hav);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;position:relative;height:min(74vh,780px);touch-action:none}
 @media(max-width:940px){.kartboks{height:60vh}}
 .kartboks svg{display:block;width:100%;height:100%;cursor:grab}
+.kartboks #lkart{position:absolute;inset:0;background:var(--hav)}
+.leaflet-container{background:var(--hav);font-family:var(--body);outline:none}
+.leaflet-tile-pane{filter:saturate(.92)}
+:root[data-theme="dark"] .leaflet-tile-pane,
+:root:not([data-theme="light"]) .leaflet-tile-pane{filter:saturate(.75) brightness(.72) contrast(1.05)}
+.lagval{position:absolute;left:12px;top:12px;z-index:500;display:flex;gap:3px;
+  background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:3px;box-shadow:var(--skug)}
+.lagval button{padding:7px 12px;border-radius:5px;font-size:12.5px;color:var(--ink-2);
+  font-family:var(--display);font-weight:600;white-space:nowrap}
+.lagval button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.kartkjelde{position:absolute;right:12px;bottom:12px;z-index:500;font-size:10.5px;
+  color:var(--ink-3);background:var(--surface);padding:3px 8px;border-radius:4px;
+  border:1px solid var(--line-2);opacity:.92}
+@media(max-width:720px){.lagval button{padding:10px 13px;font-size:13px}.lagval{left:12px;top:12px}}
 .kartboks svg.drar{cursor:grabbing}
 .po-omr{fill:var(--surface-2);stroke:var(--line);stroke-width:.5;vector-effect:non-scaling-stroke}
 .po-omr.g{fill:color-mix(in srgb,var(--po-gron) 24%,var(--surface))}
@@ -379,6 +1039,7 @@ input{font:inherit}
   <p id="bygdmerke"></p>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script type="application/json" id="d">__DATA__</script>
 <script>
 (function(){
@@ -394,6 +1055,7 @@ var PONAMN = {}; D.po.forEach(function(p){ PONAMN[p.id]=p.nm; });
 var LOK = {}; D.lokalitetar.forEach(function(l){ LOK[l.n]=l; });
 var FARTOY = D.fartoy || [];
 
+var S_lag="sjokart";
 var S = {fane:"feed", rolle:"drift", seg:"alle", po:null, type:null,
          vis:30, valt:null, valtBaat:null, sok:"", mine:[], baatfilter:"bb", ring:20, periode:null, skuff:false};
 
@@ -590,150 +1252,207 @@ function teiknFeed(){
   var m=document.getElementById("meir"); if(m) m.onclick=function(){S.vis+=30;teiknFeed();};
 }
 
-/* ── kartprojeksjon og zoom ── */
-var MID=Math.cos(65*Math.PI/180);
-function px(lon,lat){ return [lon*MID,-lat]; }
-var BOKS=(function(){
-  var a=1e9,b=1e9,c=-1e9,d=-1e9;
-  D.po.forEach(function(p){p.p.forEach(function(poly){poly.forEach(function(ring){
-    ring.forEach(function(q){var t=px(q[0],q[1]);
-      if(t[0]<a)a=t[0];if(t[0]>c)c=t[0];if(t[1]<b)b=t[1];if(t[1]>d)d=t[1];});});});});
-  var pad=(c-a)*0.03;
-  return {x:a-pad,y:b-pad,w:(c-a)+pad*2,h:(d-b)+pad*2};
-})();
-var V={x:BOKS.x,y:BOKS.y,w:BOKS.w,h:BOKS.h};
-function vbStr(){ return V.x+" "+V.y+" "+V.w+" "+V.h; }
-function nullstillVb(){ V={x:BOKS.x,y:BOKS.y,w:BOKS.w,h:BOKS.h}; }
-function zoomTil(lon,lat,bredde){
-  var t=px(lon,lat);
-  V={x:t[0]-bredde/2, y:t[1]-bredde/2*(BOKS.h/BOKS.w), w:bredde, h:bredde*(BOKS.h/BOKS.w)};
-}
-function zoomOm(faktor,cx,cy){
-  var ny=Math.min(BOKS.w, Math.max(BOKS.w/900, V.w*faktor));
-  var f=ny/V.w;
-  V.x=cx-(cx-V.x)*f; V.y=cy-(cy-V.y)*f;
-  V.w=ny; V.h=V.h*f;
-}
-function skala(){ return V.w/BOKS.w; }
+/* ── kartet ──────────────────────────────────────────────────────
+   Leaflet med kartfliser frå Kartverket. Sjøkart er standard: for eit
+   oppdrettsanlegg er djupner og skjer meir verdt enn eit flyfoto.
+   Flyfoto finst ikkje ope — Norge i bilder krev innlogging.
 
+   Ligg sida ein stad der eksterne bilete er blokkerte (t.d. eit
+   publisert Artifact), lastar ingen fliser. Då fell kartet tilbake til
+   «Enkelt», som er teikna av produksjonsområde-polygona og alltid virkar. */
+
+var FLISER = {
+  sjokart: { namn:"Sjøkart",
+    url:"https://cache.kartverket.no/v1/wmts/1.0.0/sjokartraster/default/webmercator/{z}/{y}/{x}.png",
+    maks:18, kjelde:"Sjøkart: Kartverket (NLOD)" },
+  topo: { namn:"Kart",
+    url:"https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png",
+    maks:18, kjelde:"Topografisk kart: Kartverket (NLOD)" },
+  enkelt: { namn:"Enkelt", url:null, maks:14, kjelde:"Produksjonsområde: Fiskeridirektoratet (NLOD)" }
+};
+var kart=null, flislag=null, poLag=null, punktLag=null, baatLag=null, flisFeil=0;
+var NOREG=[64.6,12.0];
+
+function lagreLag(v){ try{ localStorage.setItem("oppdretter.lag",v); }catch(e){} }
+try{ var l0=localStorage.getItem("oppdretter.lag"); if(l0&&FLISER[l0]) S_lag=l0; }catch(e){}
+
+function poFarge(st){ return st==="rød"?"var(--po-rod)":st==="gul"?"var(--po-gul)":"var(--po-gron)"; }
 function status(l){
-  if(l.lus==null) return "p-ingen";
-  if(l.lus>l.gr) return "p-over";
-  if(l.lus>l.gr*0.6) return "p-naer";
-  return "p-ok";
+  if(l.lus==null) return "ingen";
+  if(l.lus>l.gr) return "over";
+  if(l.lus>l.gr*0.6) return "naer";
+  return "ok";
 }
-function poKlasse(st){ return st==="rød"?"r":st==="gul"?"y":st==="grønn"?"g":""; }
+var PKTFARGE={over:"--kritisk",naer:"--varsel",ok:"--rolig",ingen:"--ink-3"};
+function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
-function kartSvg(medBaat){
-  var r=BOKS.w*0.0052*Math.max(0.32,Math.pow(skala(),0.62));
-  var stiar=D.po.map(function(p){
-    var d=p.p.map(function(poly){ return poly.map(function(ring){
-      return "M"+ring.map(function(q){var t=px(q[0],q[1]);
-        return t[0].toFixed(3)+" "+t[1].toFixed(3);}).join("L")+"Z"; }).join(""); }).join("");
-    return '<path class="po-omr '+poKlasse(p.st)+'" d="'+d+'"><title>PO '+p.id+" "+esc(p.nm)+
-      " — trafikklys "+esc(p.st)+'</title></path>';
-  }).join("");
+function byggKart(){
+  kart = L.map("lkart", {
+    center: NOREG, zoom: 5, minZoom: 4, maxZoom: 18,
+    zoomControl: false, attributionControl: false,
+    worldCopyJump: false
+    // SVG-renderar (standard): kvart punkt blir ein DOM-node, som toler
+    // 1 377 anlegg fint og alltid får rett storleik. Canvas-renderaren
+    // fekk feil lerretstorleik når containeren blei målt for tidleg.
+  });
+  poLag = L.layerGroup().addTo(kart);
+  punktLag = L.layerGroup().addTo(kart);
+  baatLag = L.layerGroup().addTo(kart);
+  setjLag(S_lag);
+  teiknPo();
+}
 
-  var sok=S.sok.toLowerCase().trim();
-  var pkt=D.lokalitetar.map(function(l){
-    if(sok && (l.nm+" "+(l.s||"")).toLowerCase().indexOf(sok)<0) return "";
-    var t=px(l.lo,l.la);
-    var stor=(l.lus!=null?r*1.3:r*0.72)*(erMitt(l.n)?1.5:1);
-    return '<circle class="pkt '+status(l)+(S.valt===l.n?" valt":"")+(erMitt(l.n)?" mitt":"")+
-      '" cx="'+t[0].toFixed(3)+'" cy="'+t[1].toFixed(3)+'" r="'+stor.toFixed(4)+
-      '" data-n="'+l.n+'"><title>'+esc(l.nm)+
-      (l.lus!=null?" — "+l.lus.toFixed(2)+" vaksne holus, grense "+l.gr:" — ingen luserapport")+
-      '</title></circle>';
-  }).join("");
-
-  var baat="";
-  if(medBaat){
-    baat=synlegeBaatar().map(function(f){
-      var t=px(f.lo,f.la), s=r*(f.ved?1.5:1.1);
-      return '<circle class="baat '+(f.g==="brønnbåt"?"bb":"sv")+(f.ved?" ved":"")+
-        '" cx="'+t[0].toFixed(3)+'" cy="'+t[1].toFixed(3)+'" r="'+s.toFixed(4)+
-        '" data-m="'+f.m+'"><title>'+esc(f.nm||("MMSI "+f.m))+
-        (f.ty?" — "+esc(f.ty):"")+(f.ved?" — ligg ved "+esc(f.ved.nm):"")+'</title></circle>';
-    }).join("");
+function setjLag(namn){
+  S_lag = namn; lagreLag(namn);
+  if(flislag){ kart.removeLayer(flislag); flislag=null; }
+  var f = FLISER[namn];
+  if(f.url){
+    flisFeil = 0;
+    flislag = L.tileLayer(f.url, { maxZoom:f.maks, maxNativeZoom:f.maks, crossOrigin:false });
+    // Blir flisene blokkerte (Artifact-CSP) eller er tenesta nede, fell vi tilbake.
+    flislag.on("tileerror", function(){
+      flisFeil++;
+      if(flisFeil>=6 && S_lag!=="enkelt"){
+        console.warn("kartfliser lastar ikkje — går til Enkelt");
+        setjLag("enkelt"); oppdaterLagval();
+      }
+    });
+    flislag.addTo(kart); flislag.bringToBack();
   }
-  return '<svg id="svgkart" viewBox="'+vbStr()+'" preserveAspectRatio="xMidYMid meet" role="img" '+
-    'aria-label="Kart over norske oppdrettsanlegg">'+stiar+pkt+baat+'</svg>';
+  var k=document.querySelector(".kartkjelde");
+  if(k) k.textContent=f.kjelde;
+  teiknPo();
 }
 
-function zoomKnappar(){
-  return '<div class="zoom">'+
-    '<button data-zoom="inn" title="Zoom inn" aria-label="Zoom inn">+</button>'+
-    '<button data-zoom="ut" title="Zoom ut" aria-label="Zoom ut">&minus;</button>'+
-    '<button class="nullstill" data-zoom="null" title="Vis heile landet">Alt</button></div>';
+/* Produksjonsområda: tydelege når det ikkje er fliser, diskré når det er. */
+function teiknPo(){
+  if(!poLag) return;
+  poLag.clearLayers();
+  var bar = S_lag==="enkelt";
+  D.po.forEach(function(p){
+    var ringar = p.p.map(function(poly){
+      return poly.map(function(r){ return r.map(function(q){ return [q[1],q[0]]; }); });
+    });
+    L.polygon(ringar, {
+      color: poFarge(p.st), weight: bar?0.8:1.4, opacity: bar?0.7:0.85,
+      fillColor: poFarge(p.st), fillOpacity: bar?0.16:0.05,
+      interactive:false
+    }).addTo(poLag);
+  });
 }
 
+function teiknPunkt(){
+  if(!punktLag) return;
+  punktLag.clearLayers();
+  var sok=S.sok.toLowerCase().trim();
+  var z=kart.getZoom();
+  var r = z<7 ? 2.6 : z<9 ? 3.6 : z<12 ? 5 : 7;
+  D.lokalitetar.forEach(function(l){
+    if(sok && (l.nm+" "+(l.s||"")).toLowerCase().indexOf(sok)<0) return;
+    var st=status(l), mitt=erMitt(l.n), valt=S.valt===l.n;
+    L.circleMarker([l.la,l.lo], {
+      radius: (l.lus!=null?r:r*0.72)*(mitt?1.5:1),
+      fillColor: css(PKTFARGE[st]), fillOpacity: st==="ingen"?0.45:0.92,
+      color: valt?css("--ink"):(mitt?css("--accent"):css("--surface")),
+      weight: (valt||mitt)?2.4:0.8
+    }).addTo(punktLag)
+      .bindTooltip(l.nm + (l.lus!=null
+        ? " — "+l.lus.toFixed(2)+" holus (grense "+l.gr+")"
+        : " — ingen luserapport"), {direction:"top"})
+      .on("click", function(){ S.valt=l.n; S.valtBaat=null; teiknPunkt(); teiknPanel(); });
+  });
+}
+
+function teiknBaatar(){
+  if(!baatLag) return;
+  baatLag.clearLayers();
+  if(S.fane!=="baat") return;
+  var z=kart.getZoom(), r = z<7 ? 2.6 : z<9 ? 3.4 : z<12 ? 4.6 : 6.4;
+  synlegeBaatar().forEach(function(f){
+    L.circleMarker([f.la,f.lo], {
+      radius: f.ved?r*1.4:r,
+      fillColor: f.g==="godkjend"?css("--baat"):f.g==="brønnbåt"?css("--varsel"):css("--ink-3"),
+      fillOpacity: f.g==="anna"?0.55:0.92,
+      color: f.ved?css("--kritisk"):css("--surface"),
+      weight: f.ved?2:0.8
+    }).addTo(baatLag)
+      .bindTooltip((f.nm||("MMSI "+f.m)) + (f.gk?" — godkjend brønnbåt":(f.ty?" — "+f.ty:"")) +
+        (f.ved?" — ligg ved "+f.ved.nm:""), {direction:"top"})
+      .on("click", function(){ S.valtBaat=f.m; S.valt=null; teiknBaat(); });
+  });
+}
+
+function kartSkal(medBaat){
+  return '<div class="kartboks"><div id="lkart"></div>'+
+    '<div class="lagval" id="lagval"></div>'+
+    '<div class="zoom">'+
+      '<button data-zoom="inn" title="Zoom inn" aria-label="Zoom inn">+</button>'+
+      '<button data-zoom="ut" title="Zoom ut" aria-label="Zoom ut">&minus;</button>'+
+      '<button class="nullstill" data-zoom="null" title="Vis heile landet">Alt</button>'+
+    '</div>'+
+    '<div class="teikn">'+ (medBaat
+      ? '<div><s style="background:var(--baat)"></s>Godkjend brønnbåt</div>'+
+        '<div><s style="background:var(--varsel)"></s>Melder brønnbåt, ikkje godkjend</div>'+
+        '<div><s style="background:var(--ink-3);opacity:.55"></s>Andre fartøy</div>'+
+        '<div><s style="background:var(--baat);box-shadow:0 0 0 2px var(--kritisk)"></s>Ligg ved eit anlegg</div>'
+      : '<div><s style="background:var(--kritisk)"></s>Over lusegrensa</div>'+
+        '<div><s style="background:var(--varsel)"></s>Nærmar seg grensa</div>'+
+        '<div><s style="background:var(--rolig)"></s>Under grensa</div>'+
+        '<div><s style="background:var(--ink-3);opacity:.45"></s>Ingen rapport</div>')+
+    '</div>'+
+    '<div class="kartkjelde"></div>'+
+  '</div>';
+}
+
+function oppdaterLagval(){
+  var el=document.getElementById("lagval"); if(!el) return;
+  el.innerHTML=Object.keys(FLISER).map(function(k){
+    return '<button data-lag="'+k+'" aria-pressed="'+(S_lag===k)+'">'+FLISER[k].namn+'</button>';
+  }).join("");
+  el.querySelectorAll("[data-lag]").forEach(function(b){
+    b.onclick=function(){ setjLag(b.dataset.lag); oppdaterLagval(); };
+  });
+}
+
+var kartObs=null;
 function kopleKart(medBaat){
-  var svg=document.getElementById("svgkart"); if(!svg) return;
-  svg.querySelectorAll(".pkt").forEach(function(el){
-    el.addEventListener("click",function(ev){ ev.stopPropagation();
-      S.valt=+el.dataset.n; S.valtBaat=null;
-      var x=LOK[S.valt]; if(x && skala()>0.2) zoomTil(x.lo,x.la,BOKS.w*0.13);
-      teikn(); }); });
-  svg.querySelectorAll(".baat").forEach(function(el){
-    el.addEventListener("click",function(ev){ ev.stopPropagation();
-      S.valtBaat=+el.dataset.m; S.valt=null; teikn(); }); });
+  var boks=document.getElementById("lkart");
+  if(!kart){ byggKart(); } 
+  // Leaflet må måle containeren ETTER at layouten har lagt seg, elles blir
+  // kartlerretet feil storleik og punkta hamnar utanfor.
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      if(kart){ kart.invalidateSize(false); teiknPunkt(); teiknBaatar(); }
+    });
+  });
+  if(window.ResizeObserver && boks){
+    if(kartObs) kartObs.disconnect();
+    kartObs=new ResizeObserver(function(){ if(kart) kart.invalidateSize(false); });
+    kartObs.observe(boks);
+  }
+  oppdaterLagval();
+  var k=document.querySelector(".kartkjelde");
+  if(k) k.textContent=FLISER[S_lag].kjelde;
+  teiknPunkt(); teiknBaatar();
+
+  kart.off("zoomend moveend");
+  kart.on("zoomend", function(){ teiknPunkt(); teiknBaatar(); });
 
   document.querySelectorAll("[data-zoom]").forEach(function(b){
     b.onclick=function(){
-      var cx=V.x+V.w/2, cy=V.y+V.h/2;
-      if(b.dataset.zoom==="inn") zoomOm(1/1.6,cx,cy);
-      else if(b.dataset.zoom==="ut") zoomOm(1.6,cx,cy);
-      else nullstillVb();
-      teikn();
+      if(b.dataset.zoom==="inn") kart.zoomIn();
+      else if(b.dataset.zoom==="ut") kart.zoomOut();
+      else kart.setView(NOREG,5);
     };
   });
-
-  var boks=svg.parentElement;
-  svg.addEventListener("wheel",function(ev){
-    ev.preventDefault();
-    var r=svg.getBoundingClientRect();
-    var cx=V.x+((ev.clientX-r.left)/r.width)*V.w;
-    var cy=V.y+((ev.clientY-r.top)/r.height)*V.h;
-    zoomOm(ev.deltaY>0?1.22:1/1.22,cx,cy);
-    svg.setAttribute("viewBox",vbStr());
-  },{passive:false});
-
-  var drar=false,sx=0,sy=0,ox=0,oy=0;
-  function ned(ev){ drar=true; svg.classList.add("drar");
-    var p=ev.touches?ev.touches[0]:ev; sx=p.clientX; sy=p.clientY; ox=V.x; oy=V.y; }
-  function flytt(ev){
-    if(!drar) return;
-    var p=ev.touches?ev.touches[0]:ev, r=svg.getBoundingClientRect();
-    V.x=ox-((p.clientX-sx)/r.width)*V.w;
-    V.y=oy-((p.clientY-sy)/r.height)*V.h;
-    svg.setAttribute("viewBox",vbStr());
-  }
-  function opp(){ if(drar){ drar=false; svg.classList.remove("drar"); teiknStorleik(medBaat); } }
-  svg.addEventListener("mousedown",ned); window.addEventListener("mousemove",flytt);
-  window.addEventListener("mouseup",opp);
-  svg.addEventListener("touchstart",ned,{passive:true});
-  svg.addEventListener("touchmove",flytt,{passive:true});
-  svg.addEventListener("touchend",opp);
-  boks.addEventListener("dblclick",function(ev){ ev.preventDefault();
-    var r=svg.getBoundingClientRect();
-    zoomOm(1/1.9, V.x+((ev.clientX-r.left)/r.width)*V.w, V.y+((ev.clientY-r.top)/r.height)*V.h);
-    teikn(); });
 }
-/* teikn punktstorleik på nytt etter panorering utan å bygge alt */
-function teiknStorleik(medBaat){ /* storleik endrar seg berre ved zoom, ikkje panorering */ }
+
+function zoomTil(lon,lat,_b){ if(kart) kart.setView([lat,lon], 13); }
 
 /* ── kartfane ── */
 function teiknKart(){
   document.getElementById("innhald").innerHTML=
-    '<div class="kartskal"><div class="kartboks">'+kartSvg(false)+zoomKnappar()+
-      '<div class="teikn">'+
-        '<div><s style="background:var(--kritisk)"></s>Over lusegrensa</div>'+
-        '<div><s style="background:var(--varsel)"></s>Nærmar seg grensa</div>'+
-        '<div><s style="background:var(--rolig)"></s>Under grensa</div>'+
-        '<div><s style="background:var(--ink-3);opacity:.4"></s>Ingen rapport</div>'+
-      '</div>'+
-      '<div class="hjelp">Dra for å flytte · rull eller + / &minus; for å zoome</div>'+
-    '</div><div class="panel" id="panel"></div></div>';
+    '<div class="kartskal">'+kartSkal(false)+'<div class="panel" id="panel"></div></div>';
   kopleKart(false); teiknPanel();
 }
 
@@ -741,7 +1460,7 @@ function teiknKart(){
 function synlegeBaatar(){
   var sok=S.sok.toLowerCase().trim();
   return FARTOY.filter(function(f){
-    if(S.baatfilter==="bb" && f.g!=="brønnbåt") return false;
+    if(S.baatfilter==="bb" && f.g!=="brønnbåt" && f.g!=="godkjend") return false;
     if(S.baatfilter==="ved" && !f.ved) return false;
     if(S.baatfilter==="sv" && f.g!=="service") return false;
     if(sok && ((f.nm||"")+" "+(f.de||"")).toLowerCase().indexOf(sok)<0) return false;
@@ -752,21 +1471,15 @@ function teiknBaat(){
   var b=synlegeBaatar();
   var valg=[["bb","Brønnbåtar"],["ved","Ligg ved eit anlegg"],["sv","Servicefartøy"],["alle","Alle båtar"]];
   document.getElementById("innhald").innerHTML=
-    '<div class="kartskal"><div class="kartboks">'+kartSvg(true)+zoomKnappar()+
-      '<div class="teikn">'+
-        '<div><s style="background:var(--baat)"></s>Brønnbåt-type</div>'+
-        '<div><s style="background:var(--ink-3);opacity:.75"></s>Servicefartøy</div>'+
-        '<div><s style="background:var(--baat);box-shadow:0 0 0 2px var(--kritisk)"></s>Ligg ved eit anlegg</div>'+
-      '</div>'+
-      '<div class="hjelp">Dra for å flytte · rull eller + / &minus; for å zoome</div>'+
-    '</div><div class="panel" id="panel">'+
+    '<div class="kartskal">'+kartSkal(true)+
+    '<div class="panel" id="panel">'+
       '<h3>Båtar akkurat no</h3>'+
       '<p class="selskap">'+(D.aisTid?("Siste melding "+D.aisTid.slice(11,16)+" UTC, "+D.aisTid.slice(0,10)):"")+'</p>'+
       '<div class="chips" style="margin-bottom:12px">'+valg.map(function(v){
         return '<button data-bf="'+v[0]+'" aria-pressed="'+(S.baatfilter===v[0])+'">'+v[1]+'</button>';
       }).join("")+'</div>'+
       '<div class="rad"><span>Viser no</span><b>'+b.length+'</b></div>'+
-      '<div class="rad"><span>Brønnbåt-type totalt</span><b>'+D.statistikk.bronnbat+'</b></div>'+
+      '<div class="rad"><span>Godkjende brønnbåtar i sjøen</span><b>'+(D.statistikk.godkjend||0)+'</b></div>'+
       '<div class="rad"><span>Ligg ved eit anlegg</span><b>'+
         FARTOY.filter(function(f){return f.ved;}).length+'</b></div>'+
       baatInnhald()+
@@ -777,6 +1490,7 @@ function teiknBaat(){
   var t=document.getElementById("tilbakeBaat");
   if(t) t.onclick=function(){ S.valtBaat=null; teiknBaat(); };
 }
+
 function baatInnhald(){
   if(S.valtBaat){
     var f=FARTOY.filter(function(x){return x.m===S.valtBaat;})[0];
@@ -911,7 +1625,7 @@ function teiknPanel(){
         }).join("")+'</div></div>':'');
     el.querySelectorAll("[data-n]").forEach(function(b){
       b.onclick=function(){ S.valt=+b.dataset.n; var x=LOK[S.valt];
-        if(x) zoomTil(x.lo,x.la,BOKS.w*0.16); teikn(); }; });
+        if(x) zoomTil(x.lo,x.la); teikn(); }; });
     return;
   }
 
@@ -960,7 +1674,7 @@ function teiknPanel(){
   h+='<button class="folg'+(erMitt(l.n)?" av":"")+'" id="folg">'+
     (erMitt(l.n)?"Følgjer dette anlegget ✓":"Følg dette anlegget")+'</button>';
   el.innerHTML=h;
-  document.getElementById("tilbake").onclick=function(){ S.valt=null; nullstillVb(); teikn(); };
+  document.getElementById("tilbake").onclick=function(){ S.valt=null; teikn(); };
   el.querySelectorAll("[data-ring]").forEach(function(b){
     b.onclick=function(){ S.ring=+b.dataset.ring; teiknPanel(); }; });
   el.querySelectorAll("[data-gaa]").forEach(function(b){
@@ -991,7 +1705,7 @@ document.addEventListener("click",function(e){
     S.mine=S.mine.filter(function(x){return x!==n;}); lagreMine(); teiknRail(); teikn(); return; }
   if(b.dataset.baat){ S.valtBaat=+b.dataset.baat;
     var f=FARTOY.filter(function(x){return x.m===S.valtBaat;})[0];
-    if(f) zoomTil(f.lo,f.la,BOKS.w*0.1); teiknBaat(); return; }
+    if(f) zoomTil(f.lo,f.la); teiknBaat(); return; }
   if(b.dataset.seg){ S.seg=b.dataset.seg; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
   if("po" in b.dataset){ S.po=b.dataset.po===""?null:+b.dataset.po; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
   if("type" in b.dataset){ S.type=b.dataset.type===""?null:b.dataset.type; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
