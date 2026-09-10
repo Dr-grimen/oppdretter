@@ -1604,6 +1604,131 @@ function baatKort(f){
 }
 
 /* ── panel for anlegg ── */
+
+/* Lusetala i sjøen rundt eit anlegg. Alt er offentleg rapportert.
+   Ringen er 20 km som standard: i mange fjordar har berre eit par av naboane
+   innan 10 km luserapport i det heile, og eit snitt av to anlegg lyg. */
+function fjordBolk(l){
+  var r=S.ring, nb=naboar(l.n,r);
+  var medFisk=nb.filter(function(x){return x.l.fisk===true;});
+  var medLus=nb.filter(function(x){return x.l.lus!=null;});
+  var over=medLus.filter(function(x){return x.l.lus>x.l.gr;});
+  var snitt=medLus.length?medLus.reduce(function(a,x){return a+x.l.lus;},0)/medLus.length:null;
+
+  var klasse,tekst;
+  if(!medLus.length){ klasse="s-ingen"; tekst="Ingen av naboane har luserapport denne veka."; }
+  else if(over.length){ klasse="s-over";
+    tekst=over.length+" anlegg rundt deg ligg over si eiga lusegrense."; }
+  else if(snitt>l.gr*0.6){ klasse="s-naer"; tekst="Snittet rundt deg nærmar seg grensa."; }
+  else { klasse="s-ok"; tekst="Lusetala rundt deg er låge."; }
+
+  var h='<div class="fjord"><div class="fjord-topp"><h4>I sjøen rundt deg</h4></div>'+
+    '<p class="hint" style="font-size:12px">Alle luserapportar er offentlege. Her er dei innan '+r+' km.</p>'+
+    '<div class="ringar">'+[10,20,30,50].map(function(v){
+      return '<button data-ring="'+v+'" aria-pressed="'+(S.ring===v)+'">'+v+' km</button>';
+    }).join("")+'</div>'+
+    '<div class="press '+klasse+'"><b>'+(snitt!=null?snitt.toFixed(2):"—")+'</b>'+
+      '<span>Snitt vaksne holus hos naboane.<br>'+esc(tekst)+'</span></div>'+
+    '<div class="fj-rader">'+
+      '<div><b>'+nb.length+'</b><span>anlegg innan '+r+' km</span></div>'+
+      '<div><b>'+medFisk.length+'</b><span>har fisk i sjøen</span></div>'+
+      '<div><b>'+medLus.length+'</b><span>har luserapport</span></div>'+
+      '<div><b>'+over.length+'</b><span>over si grense</span></div>'+
+    '</div>';
+
+  if(l.lus!=null && snitt!=null){
+    var diff=l.lus-snitt;
+    h+='<p class="hint" style="margin-bottom:9px">Du ligg <b style="font-family:var(--mono);color:'+
+      (diff>0.05?"var(--kritisk)":diff<-0.05?"var(--rolig)":"var(--ink-2)")+'">'+
+      (diff>0?"+":"")+diff.toFixed(2)+'</b> mot snittet i området.</p>';
+  }
+
+  if(medLus.length){
+    h+='<div class="liste">'+medLus.slice(0,25).map(function(x){
+      var y=x.l;
+      return '<button class="lrad" data-gaa="'+y.n+'"><span>'+esc(y.nm)+
+        '<em>'+x.d.toFixed(1)+' km · '+esc((y.s||"").slice(0,26))+'</em></span>'+
+        '<b class="'+((y.lus>y.gr)?"r":"")+'">'+y.lus.toFixed(2)+'<i> /'+y.gr+'</i></b></button>';
+    }).join("")+'</div>';
+    if(medLus.length>25) h+='<p class="hint" style="margin-top:6px;font-size:11.5px">Viser dei 25 næraste av '+medLus.length+'.</p>';
+  } else {
+    h+='<p class="hint">Ingen av dei '+nb.length+' anlegga innan '+r+
+       ' km har luserapport denne veka. Prøv ein større ring.</p>';
+  }
+  return h+'</div>';
+}
+
+/* Alle anlegg i eit område, alfabetisk. Nåla lagrar anlegget under «Anlegga mine». */
+function nalIkon(pa){
+  return pa
+    ? '<svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M9.5 1.2 14.8 6.5l-1.1 1.1-1-.3-2.4 2.4.4 2.6-1.2 1.2-2.9-2.9-3.4 3.4-.8-.8 3.4-3.4L2.9 7l1.2-1.2 2.6.4 2.4-2.4-.3-1z"/></svg>'
+    : '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"><path d="M9.5 1.9 14.1 6.5l-.7.7-1-.3-2.7 2.7.4 2.4-.7.7-2.7-2.7-3.4 3.4M3.6 7.2l.7-.7 2.4.4L9.4 4.2l-.3-1z"/></svg>';
+}
+
+function teiknAnlegg(){
+  var sok=S.sok.toLowerCase().trim();
+  var liste=D.lokalitetar.filter(function(l){
+    if(S.po!==null && l.po!==S.po) return false;
+    if(sok && ((l.nm||"")+" "+(l.s||"")+" "+(l.km||"")).toLowerCase().indexOf(sok)<0) return false;
+    return true;
+  }).sort(function(a,b){ return (a.nm||"").localeCompare(b.nm||"","nn"); });
+
+  var omr = S.po===null ? "heile landet"
+    : "produksjonsområde "+S.po+(PONAMN[S.po]?" — "+PONAMN[S.po]:"");
+  var medLus=liste.filter(function(l){return l.lus!=null;});
+  var over=medLus.filter(function(l){return l.lus>l.gr;}).length;
+
+  var h='<div class="liste-topp"><h2>'+liste.length+' anlegg</h2>'+
+    '<p>'+esc(omr)+' · '+medLus.length+' med luserapport'+(over?" · "+over+" over grensa":"")+'</p></div>';
+
+  if(!liste.length){
+    document.getElementById("innhald").innerHTML=
+      h+'<div class="tom">Ingen anlegg her.<br>Prøv eit anna område, eller tøm søkefeltet.</div>';
+    return;
+  }
+
+  h+='<div class="reg">';
+  var forrigeBokstav="";
+  liste.forEach(function(l){
+    var b=(l.nm||"?").charAt(0).toUpperCase();
+    if(b!==forrigeBokstav){ h+='<div class="bokstav">'+esc(b)+'</div>'; forrigeBokstav=b; }
+    var st=status(l);
+    var kl = st==="ingen" ? "ingen" : st==="over" ? "over" : st==="naer" ? "naer" : "";
+    var tal = l.lus==null ? "ingen rapport" : l.lus.toFixed(2)+'<i> /'+l.gr+'</i>';
+    var fisk = l.fisk===true ? '<span class="fisk ja">fisk</span>'
+             : l.fisk===false ? '<span class="fisk">tom</span>'
+             : '<span class="fisk">ukjent</span>';
+    h+='<div class="arad">'+
+      '<button class="nal" data-nal="'+l.n+'" aria-pressed="'+erMitt(l.n)+'" '+
+        'aria-label="'+(erMitt(l.n)?"Fjern nål frå ":"Sett nål på ")+esc(l.nm)+'">'+
+        nalIkon(erMitt(l.n))+'</button>'+
+      '<button class="namn" data-opne="'+l.n+'"><b>'+esc(l.nm)+'</b>'+
+        '<em>'+esc(l.s||"ukjend eigar")+(l.km?" · "+esc(l.km):"")+'</em></button>'+
+      fisk+'<span class="lusetal '+kl+'">'+tal+'</span>'+
+    '</div>';
+  });
+  h+='</div>';
+  document.getElementById("innhald").innerHTML=h;
+
+  document.querySelectorAll("[data-nal]").forEach(function(b){
+    b.onclick=function(){
+      var n=+b.dataset.nal;
+      if(erMitt(n)) S.mine=S.mine.filter(function(x){return x!==n;});
+      else S.mine=S.mine.concat([n]);
+      lagreMine(); teiknRail(); teiknBotnfaner(); teiknAnlegg();
+    };
+  });
+  document.querySelectorAll("[data-opne]").forEach(function(b){
+    b.onclick=function(){
+      S.valt=+b.dataset.opne; S.fane="kart";
+      document.querySelectorAll('[role="tab"]').forEach(function(t){
+        t.setAttribute("aria-selected",String(t.dataset.fane==="kart")); });
+      teiknRail(); teiknBotnfaner(); teikn();
+      var x=LOK[S.valt]; if(x) zoomTil(x.lo,x.la);
+    };
+  });
+}
+
 function teiknPanel(){
   var el=document.getElementById("panel"); if(!el) return;
   var l=LOK[S.valt];
@@ -1630,9 +1755,9 @@ function teiknPanel(){
   }
 
   var st=status(l);
-  var boks = st==="p-over" ? ["s-over", l.lus.toFixed(2), "Over lusegrensa på "+l.gr+". Tiltak skal setjast inn omgåande."]
-    : st==="p-naer" ? ["s-naer", l.lus.toFixed(2), "Nærmar seg grensa på "+l.gr+"."]
-    : st==="p-ok" ? ["s-ok", l.lus.toFixed(2), "Under grensa på "+l.gr+"."]
+  var boks = st==="over" ? ["s-over", l.lus.toFixed(2), "Over lusegrensa på "+l.gr+". Tiltak skal setjast inn omgåande."]
+    : st==="naer" ? ["s-naer", l.lus.toFixed(2), "Nærmar seg grensa på "+l.gr+"."]
+    : st==="ok" ? ["s-ok", l.lus.toFixed(2), "Under grensa på "+l.gr+"."]
     : ["s-ingen","—","Ingen luserapport denne veka. Det tyder ukjent, ikkje trygt."];
 
   var baatVed=FARTOY.filter(function(f){return f.ved&&f.ved.n===l.n;});

@@ -38,6 +38,37 @@ if (d) {
   if (dagar > 6) feil.push(`datasettet er ${Math.round(dagar)} timar gammalt`);
 }
 
+/* Kvar funksjon som blir kalla må finnast.
+   Denne kontrollen finst fordi to funksjonar ein gong forsvann ut av fila utan at
+   noko sa frå: syntaksen var gyldig, dataa var rette, og feilen viste seg først
+   når nokon trykte på fana. */
+{
+  const i0 = h.lastIndexOf("<script>");
+  let js = h.slice(i0, h.lastIndexOf("</script>"));
+  // Kommentarar og tekststrengar inneheld ord som liknar funksjonskall
+  // («Kartverket (NLOD)», «(fleire …»). Dei må vekk før vi leiter.
+  js = js
+    .replace(/\/\*[\s\S]*?\*\//g, " ")
+    .replace(/^\s*\/\/.*$/gm, " ")
+    .replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
+    .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
+    .replace(/`(?:[^`\\]|\\.)*`/g, "``");
+  const definerte = new Set([...js.matchAll(/function\s+([A-Za-zÆØÅæøå_$][\w$]*)\s*\(/g)].map((m) => m[1]));
+  for (const m of js.matchAll(/(?:var|let|const)\s+([\w$]+)\s*=\s*function/g)) definerte.add(m[1]);
+  const innebygde = new Set([
+    "if","for","while","switch","catch","return","typeof","function","new","await",
+    "Number","String","Boolean","Array","Object","JSON","Math","Date","Set","Map",
+    "parseInt","parseFloat","isNaN","console","setTimeout","clearTimeout","alert",
+    "getComputedStyle","requestAnimationFrame","ResizeObserver","Promise","RegExp","Error",
+  ]);
+  const manglar = new Set();
+  for (const m of js.matchAll(/(^|[^\w$.])([A-Za-zÆØÅæøå_$][\w$]*)\s*\(/g)) {
+    const n = m[2];
+    if (!definerte.has(n) && !innebygde.has(n)) manglar.add(n);
+  }
+  if (manglar.size) feil.push(`kallar funksjonar som ikkje finst: ${[...manglar].join(", ")}`);
+}
+
 if (!h.includes("leaflet")) feil.push("Leaflet manglar");
 if (!h.includes("NLOD")) feil.push("NLOD-attribusjonen manglar — det er eit lisenskrav");
 
