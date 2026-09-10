@@ -15,7 +15,7 @@ import { lesSoner, soneFor } from "./ingest/soner.ts";
 import { hentBronnbatregister, pakallesignal, type Transporteining } from "./ingest/bronnbatregister.ts";
 import {
   finnOverGrensa, finnLuseauke, finnBehandling, finnKlynger,
-  finnSjukdom, finnSoknader, settPoOppslag, score, SEGMENT, type Hending,
+  finnSjukdom, finnSoknader, settPoOppslag, score, driftsvekt, SEGMENT, type Hending,
 } from "./events/hendingar.ts";
 import { lusegrense } from "./events/lusegrense.ts";
 import { readFileSync } from "node:fs";
@@ -195,7 +195,14 @@ try {
   const ved = finnVedAnlegg(pos, anlegg);
   vedAnlegg = ved;
   const vedKart = new Map(ved.map((v) => [v.mmsi, { lokalitetsnr: v.lokalitetsnr, lokalitetsnamn: v.lokalitetsnamn, avstandM: v.avstandM }]));
-  fartoy = byggFartoy(pos, info, vedKart, reg);
+  const alleFartoy = byggFartoy(pos, info, vedKart, reg);
+  // Fiskebåtar, lastebåtar og fritidsbåtar har ingenting med eit anlegg å gjere,
+  // men var 48 % av datavekta. Vi held brønnbåtar, servicefartøy og alt som
+  // faktisk ligg ved eit anlegg.
+  fartoy = alleFartoy.filter(
+    (f) => f.g === "godkjend" || f.g === "brønnbåt" || (f.g === "service" && f.ved) || f.ved,
+  );
+  console.log(`  fartøy            ${fartoy.length} relevante av ${alleFartoy.length}`);
   const gk = fartoy.filter((f) => f.g === "godkjend").length;
   const bb = fartoy.filter((f) => f.g === "brønnbåt").length;
   const gkVed = fartoy.filter((f) => f.g === "godkjend" && f.ved).length;
@@ -212,8 +219,8 @@ for (const r of sisteRapportar) {
   if (v !== null && v !== undefined) sisteLus.set(r.lokalitetsnummer, v);
 }
 
-const soner = lesSoner(mappe);
-console.log(`  aktive soner    ${soner.length}`);
+const soner_ = lesSoner(mappe);
+console.log(`  aktive soner    ${soner_.length}`);
 
 /** Lusegrensa i FOR-2012-12-05-1140 § 8 gjeld laksefisk. Blåskjell, tare,
  *  torsk og østers har ikkje lakselus, og skal ikkje merkast «ingen luserapport». */
@@ -228,6 +235,15 @@ const kartLok = lokalitetar
     const nr = Number(l.lokalitetsnr);
     const lus = sisteLus.get(nr);
     const g = lusegrense(l.fylkenr, siste.aar, siste.uke);
+    const laksefisk = harLaksefisk(l);
+    const historikk = veker.map((v) => {
+      const p = serier.get(nr)?.find((x) => x.aar === v.aar && x.uke === v.uke);
+      return p ? Math.round(p.lus * 100) / 100 : null;
+    });
+    const harHistorikk = historikk.some((x) => x !== null);
+    const soner = soneFor(l.lon ?? 0, l.lat ?? 0, soner_).map((z) => ({ t: z.type, f: z.forskrift }));
+    // Tomme felt blir utelatne heilt. 708 av 1377 anlegg har ikkje eit einaste
+    // lusetal, og bar før ei liste med åtte null-verdiar kvar.
     return {
       n: nr,
       nm: l.namn,
@@ -238,18 +254,12 @@ const kartLok = lokalitetar
       s: offentlegEigar(l),
       k: l.kapasitetEining === "TN" ? l.kapasitet : null,
       lus: lus ?? null,
-      gr: g.verdi,
-      lf: harLaksefisk(l),
+      ...(laksefisk ? { gr: g.verdi } : { lf: false }),
       fisk: harFisk.get(nr) ?? null,
       km: l.kommune,
-      ar: l.artar,
-      // Aktive ILA-/PD-soner lokaliteten ligg inne i.
-      so: soneFor(l.lon ?? 0, l.lat ?? 0, soner).map((z) => ({ t: z.type, f: z.forskrift })),
-      // Åtte veker lusetal, til trendkurva i detaljpanelet. null = ingen rapport.
-      hist: veker.map((v) => {
-        const p = serier.get(nr)?.find((x) => x.aar === v.aar && x.uke === v.uke);
-        return p ? Math.round(p.lus * 100) / 100 : null;
-      }),
+      ...(l.artar.length ? { ar: l.artar.slice(0, 2) } : {}),
+      ...(soner.length ? { so: soner } : {}),
+      ...(harHistorikk ? { hist: historikk } : {}),
     };
   });
 
@@ -277,16 +287,37 @@ const poGeo = poRå.features.map((f) => {
 });
 
 // ── Skriv ───────────────────────────────────────────────────────────────────
+const kvifortabell = (() => {
+  const sett = new Set<string>();
+  for (const h of alle) for (const r of Object.values(h.relevans)) sett.add(r.why);
+  return [...sett];
+})();
+
 const data = {
   bygd: new Date().toISOString(),
   veke: { aar: siste.aar, uke: siste.uke },
   veker,
+  // Dei same «kvifor»-tekstane går att i hundrevis av hendingar. Vi lagrar dei
+  // éin gong og viser til dei med indeks.
+  kvifor: kvifortabell,
   hendingar: alle
     .map((h) => {
       const d = Math.max(0, dagarSidan(h.dato));
       // Full vekt i to veker, så jamn nedtrapping til 35 % etter eit halvt år.
       const fersk = d <= 14 ? 1 : Math.max(0.35, 1 - (d - 14) / 260);
-      return { ...h, topp: score(h, "alle"), dagar: Math.round(d), fersk: Math.round(fersk * 100) / 100 };
+      // natural_key trengst berre i ingest for idempotens, ikkje i appen.
+      const { natural_key, relevans, ...rest } = h;
+      return {
+        ...rest,
+        // [segment]: [score, indeks i kvifor-lista]
+        rel: Object.fromEntries(
+          Object.entries(relevans).map(([k, v]) => [k, [v.score, kvifortabell.indexOf(v.why)]]),
+        ),
+        topp: score(h, "alle"),
+        drift: driftsvekt(h),
+        dagar: Math.round(d),
+        fersk: Math.round(fersk * 100) / 100,
+      };
     })
     .sort((a, b) => b.topp * b.fersk - a.topp * a.fersk),
   lokalitetar: kartLok,
@@ -315,6 +346,6 @@ const ut = `${process.cwd()}/data/app/data.json`;
 writeFileSync(ut, JSON.stringify(data));
 const kb = Math.round(JSON.stringify(data).length / 1024);
 console.log(`\n  Skrive ${ut} (${kb} kB)`);
-const iSone = kartLok.filter((l) => l.so.length > 0).length;
+const iSone = kartLok.filter((l) => (l.so?.length ?? 0) > 0).length;
 console.log(`  I sjukdomssone: ${iSone} lokalitetar`);
 console.log(`  Kartpunkt: ${kartLok.length}  |  PO-polygon: ${poGeo.length}  |  Fartøy: ${fartoy.length}`);

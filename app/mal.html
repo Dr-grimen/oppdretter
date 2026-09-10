@@ -692,7 +692,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   --skug:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
 }
 *{box-sizing:border-box}
-body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
 h1,h2,h3,h4{font-family:var(--display);font-weight:600;margin:0;text-wrap:balance;letter-spacing:-.012em}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 input{font:inherit}
@@ -723,11 +723,11 @@ input{font:inherit}
 .sok svg{flex:none;opacity:.5}
 
 /* ── skal ───────────────────────────────────────────── */
-.skal{max-width:1440px;margin:0 auto;padding:16px 18px 50px;display:grid;grid-template-columns:246px minmax(0,1fr);gap:20px;align-items:start}
+.skal{max-width:1440px;margin:0 auto;padding:22px 20px 56px;display:grid;grid-template-columns:238px minmax(0,1fr);gap:28px;align-items:start}
 @media(max-width:940px){.skal{grid-template-columns:1fr;gap:14px}}
-.rail{position:sticky;top:calc(var(--topp) + 8px);display:flex;flex-direction:column;gap:17px}
+.rail{position:sticky;top:calc(var(--topp) + 14px);display:flex;flex-direction:column;gap:22px}
 @media(max-width:940px){.rail{position:static;flex-direction:row;overflow-x:auto;gap:14px;padding-bottom:4px}.bolk{min-width:max-content}}
-.bolk h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink-3);margin-bottom:8px;font-weight:600}
+.bolk h3{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-3);margin-bottom:9px;font-weight:600}
 .bolk .forklar{font-size:12px;color:var(--ink-3);margin:0 0 8px;line-height:1.4}
 .seg{display:flex;flex-direction:column;gap:3px}
 @media(max-width:940px){.seg{flex-direction:row}}
@@ -736,7 +736,15 @@ input{font:inherit}
 .seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 24%,transparent);font-weight:600}
 .seg button i{font-style:normal;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
 .seg button[aria-pressed="true"] i{color:var(--accent)}
-.chips{display:flex;flex-wrap:wrap;gap:4px}
+.vel{width:100%;padding:9px 11px;border-radius:7px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);font-size:14px;font-family:var(--body);
+  appearance:none;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+.vel:hover{border-color:var(--ink-3)}
+@media(max-width:720px){.vel{padding:12px 13px;font-size:16px;padding-right:36px}}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
 .chips button{padding:4px 10px;border-radius:20px;font-size:12.5px;border:1px solid var(--line);color:var(--ink-2)}
 .chips button:hover{border-color:var(--ink-3)}
 .chips button[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
@@ -751,7 +759,7 @@ input{font:inherit}
 .mine.tomt em{font-style:normal;color:var(--accent);font-weight:600}
 
 /* ── feed ───────────────────────────────────────────── */
-.feed{display:flex;flex-direction:column;gap:8px;min-width:0}
+.feed{display:flex;flex-direction:column;gap:10px;min-width:0}
 .filterlinje{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 11px;margin-bottom:2px;
   background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r);font-size:12.5px}
 .filterlinje>span{color:var(--ink-3)}
@@ -761,27 +769,27 @@ input{font:inherit}
 .filterlinje .nullstillalt{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-weight:600}
 .filterlinje .nullstillalt:hover{color:var(--accent);border-color:var(--accent)}
 @media(max-width:720px){.filterlinje{font-size:13px}.filterlinje button{padding:7px 12px}}
-.feed-topp{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:2px;flex-wrap:wrap}
-.feed-topp h2{font-size:17px}
+.feed-topp{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin-bottom:6px;flex-wrap:wrap}
+.feed-topp h2{font-size:19px;letter-spacing:-.015em}
 .feed-topp p{margin:0;font-size:13px;color:var(--ink-3)}
-.kort{background:var(--surface);border:1px solid var(--line-2);border-left:3px solid var(--line);border-radius:var(--r);padding:12px 15px;display:flex;flex-direction:column;gap:5px;text-align:left;width:100%}
+.kort{background:var(--surface);border:1px solid var(--line-2);border-left:3px solid var(--line);border-radius:var(--r);padding:15px 18px;display:flex;flex-direction:column;gap:7px;text-align:left;width:100%}
 .kort.a3{border-left-color:var(--kritisk)} .kort.a2{border-left-color:var(--varsel)} .kort.a1{border-left-color:var(--rolig)}
 .kort.mitt{box-shadow:0 0 0 1.5px var(--accent)}
 .kort.gammal{opacity:.72}
 .kort.gammal:hover{opacity:1}
 .kort-hovud{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
-.merkelapp{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;font-family:var(--display)}
+.merkelapp{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;font-family:var(--display)}
 .m-a3{background:var(--kritisk-soft);color:var(--kritisk)}
 .m-a2{background:var(--varsel-soft);color:var(--varsel)}
 .m-a1{background:var(--rolig-soft);color:var(--rolig)}
 .mitt-merke{background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;font-family:var(--display)}
-.kort h3{font-size:15.5px;font-weight:600;min-width:0}
-.kort .detalj{font-size:14px;color:var(--ink-2);margin:0}
+.kort h3{font-size:16.5px;font-weight:600;min-width:0;letter-spacing:-.01em}
+.kort .detalj{font-size:14.5px;color:var(--ink-2);margin:0;line-height:1.5;max-width:74ch}
 .kort .meta{display:flex;gap:9px;flex-wrap:wrap;font-size:12px;color:var(--ink-3);padding-top:2px}
 .kort .meta span{white-space:nowrap}
 .kort .kvifor{margin:3px 0 0;padding:8px 11px;background:var(--surface-2);border-radius:6px;font-size:13.5px;color:var(--ink-2);border-left:2px solid var(--accent)}
 .kort .kvifor b{color:var(--accent);font-weight:600;font-family:var(--display);font-size:11px;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:1px}
-.passar{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-3);margin-top:1px}
+.passar{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-3);margin-top:2px;opacity:.85}
 .passar .bar{flex:1;max-width:110px;height:4px;background:var(--line-2);border-radius:3px;overflow:hidden}
 .passar .bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
 .liste-topp{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
@@ -962,6 +970,11 @@ input{font:inherit}
   .chips button{padding:9px 14px;font-size:14px}
   .mine .m{padding:10px 11px}
   .mine .m button{padding:6px 8px;font-size:20px}
+  .ferdig{display:block;position:sticky;bottom:0;width:100%;margin-top:4px;
+    padding:14px;border-radius:9px;background:var(--accent);color:#fff;
+    font-family:var(--display);font-weight:600;font-size:15.5px}
+  :root[data-theme="dark"] .ferdig,
+  :root:not([data-theme="light"]) .ferdig{color:#08201C}
 
   .skuff-bak{display:block;position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.35);
     opacity:0;pointer-events:none;transition:opacity .22s}
@@ -1061,6 +1074,16 @@ var SEGNAMN = {alle:"Alt", not:"Not og utstyr", fortoying:"Fortøying",
 var TYPENAMN = {over_grensa:"Over lusegrensa", luseauke:"Lusetal stig", behandling:"Avlusa",
   behandlingsklynge:"Mange avlusar", sjukdom_paavist:"Sjukdom påvist",
   sjukdom_avslutta:"Sjukdom over", ny_soknad:"Ny søknad", soknad_avgjort:"Søknad avgjort"};
+var GRUPPER = [
+  {k:"lus",      n:"Lus",       t:["over_grensa","luseauke"]},
+  {k:"avlusing", n:"Avlusing",  t:["behandling","behandlingsklynge"]},
+  {k:"sjukdom",  n:"Sjukdom",   t:["sjukdom_paavist","sjukdom_avslutta"]},
+  {k:"soknad",   n:"Søknad",    t:["ny_soknad","soknad_avgjort"]},
+];
+function iGruppe(type,k){
+  var g=GRUPPER.filter(function(x){return x.k===k;})[0];
+  return g ? g.t.indexOf(type)>=0 : false;
+}
 var PONAMN = {}; D.po.forEach(function(p){ PONAMN[p.id]=p.nm; });
 var LOK = {}; D.lokalitetar.forEach(function(l){ LOK[l.n]=l; });
 var FARTOY = D.fartoy || [];
@@ -1099,11 +1122,18 @@ function mineOgNaboar(){
   return sett;
 }
 
+/* rel[segment] = [poeng, indeks i D.kvifor]. Tekstane er lagra éin gong. */
+function relFor(h,seg){
+  var r=h.rel&&h.rel[seg];
+  return r ? {score:r[0], why:D.kvifor[r[1]]} : null;
+}
 function poeng(h){
   if(S.rolle==="drift") return 0;
-  if(S.seg==="alle"){ var v=Object.keys(h.relevans).map(function(k){return h.relevans[k].score;});
-    return v.length?Math.max.apply(null,v):0; }
-  return h.relevans[S.seg]?h.relevans[S.seg].score:0;
+  if(S.seg==="alle"){
+    var v=Object.keys(h.rel||{}).map(function(k){return h.rel[k][0];});
+    return v.length?Math.max.apply(null,v):0;
+  }
+  var r=relFor(h,S.seg); return r?r.score:0;
 }
 /* Eit gammalt varsel er mindre verdt enn eit ferskt, same kor relevant det er. */
 function rangering(h){ return poeng(h)*(h.fersk!=null?h.fersk:1); }
@@ -1122,8 +1152,8 @@ function filtrert(){
   var naer=S.rolle==="drift"&&S.mine.length?mineOgNaboar():null;
   return D.hendingar.filter(function(h){
     if(S.po!==null && h.produksjonsomrade!==S.po) return false;
-    if(S.type!==null && h.type!==S.type) return false;
-    if(S.rolle==="lev" && S.seg!=="alle" && !h.relevans[S.seg]) return false;
+    if(S.type!==null && !iGruppe(h.type,S.type)) return false;
+    if(S.rolle==="lev" && S.seg!=="alle" && !(h.rel&&h.rel[S.seg])) return false;
     if(S.periode!==null && (h.dagar==null || h.dagar>S.periode)) return false;
     if(naer && !(h.lokalitetsnr && naer[h.lokalitetsnr])) return false;
     if(sok){
@@ -1133,10 +1163,12 @@ function filtrert(){
     return true;
   }).sort(function(a,b){
     if(S.rolle==="drift"){
+      // Eigne anlegg først, så det som betyr mest for drift, så ferskheit.
       var ma=(a.lokalitetsnr&&erMitt(a.lokalitetsnr))?1:0, mb=(b.lokalitetsnr&&erMitt(b.lokalitetsnr))?1:0;
       if(ma!==mb) return mb-ma;
-      if(a.dato!==b.dato) return a.dato<b.dato?1:-1;
-      return b.alvor-a.alvor;
+      var va=(a.drift||0)*(a.fersk!=null?a.fersk:1), vb=(b.drift||0)*(b.fersk!=null?b.fersk:1);
+      if(vb!==va) return vb-va;
+      return a.dato<b.dato?1:-1;
     }
     var d=rangering(b)-rangering(a);
     return d!==0?d:(a.dato<b.dato?1:-1);
@@ -1195,42 +1227,49 @@ function teiknRail(){
     h+='<div class="bolk"><h3>Eg leverer</h3>'+
       '<p class="forklar">Vel kva du sel, så sorterer vi varsla etter kva som betyr mest for deg.</p><div class="seg">'+
       ["alle"].concat(D.segment).map(function(s){
-        var n = s==="alle"?D.hendingar.length:D.hendingar.filter(function(x){return x.relevans[s];}).length;
+        var n = s==="alle"?D.hendingar.length:D.hendingar.filter(function(x){return x.rel&&x.rel[s];}).length;
         return '<button data-seg="'+s+'" aria-pressed="'+(S.seg===s)+'">'+esc(SEGNAMN[s])+' <i>'+n+'</i></button>';
       }).join("")+'</div></div>';
   }
   }
 
   if(S.fane!=="baat")
-  h+='<div class="bolk"><h3>Område</h3><div class="chips">'+
-    '<button data-po="" aria-pressed="'+(S.po===null)+'">Heile landet</button>'+
-    D.po.map(function(p){
-      return '<button data-po="'+p.id+'" aria-pressed="'+(S.po===p.id)+'" title="'+esc(p.nm)+'">'+p.id+'</button>';
-    }).join("")+'</div></div>';
+  h+='<div class="bolk"><h3>Kvar</h3>'+
+    '<select id="povel" class="vel" aria-label="Vel produksjonsområde">'+
+      '<option value=""'+(S.po===null?" selected":"")+'>Heile landet</option>'+
+      D.po.slice().sort(function(a,b){return a.id-b.id;}).map(function(p){
+        return '<option value="'+p.id+'"'+(S.po===p.id?" selected":"")+'>'+
+          esc(p.id+" · "+p.nm)+'</option>';
+      }).join("")+
+    '</select></div>';
 
   if(S.fane==="feed"){
-  h+='<div class="bolk"><h3>Kor langt tilbake</h3><div class="chips">'+
-    [[14,"Siste 2 veker"],[35,"Siste månad"],[90,"Siste 3 md"],[null,"Alt"]].map(function(v){
-      return '<button data-per="'+(v[0]===null?"":v[0])+'" aria-pressed="'+(S.periode===v[0])+'">'+v[1]+'</button>';
-    }).join("")+'</div></div>';
-
-  var typar={}; D.hendingar.forEach(function(x){typar[x.type]=(typar[x.type]||0)+1;});
-  h+='<div class="bolk"><h3>Kva slags varsel</h3><div class="chips">'+
-    '<button data-type="" aria-pressed="'+(S.type===null)+'">Alle</button>'+
-    Object.keys(typar).sort(function(a,b){return typar[b]-typar[a];}).map(function(t){
-      return '<button data-type="'+t+'" aria-pressed="'+(S.type===t)+'">'+esc(TYPENAMN[t]||t)+'</button>';
-    }).join("")+'</div></div>';
+  h+='<div class="bolk"><h3>Kva</h3><div class="chips">'+
+    '<button data-type="" aria-pressed="'+(S.type===null)+'">Alt</button>'+
+    GRUPPER.map(function(g){
+      var n=D.hendingar.filter(function(x){return g.t.indexOf(x.type)>=0;}).length;
+      return '<button data-type="'+g.k+'" aria-pressed="'+(S.type===g.k)+'">'+
+        esc(g.n)+' <i>'+n+'</i></button>';
+    }).join("")+'</div></div>'+
+    '<div class="bolk"><h3>Når</h3><div class="chips">'+
+      [[14,"2 veker"],[35,"1 månad"],[null,"Alt"]].map(function(v){
+        return '<button data-per="'+(v[0]===null?"":v[0])+'" aria-pressed="'+(S.periode===v[0])+'">'+v[1]+'</button>';
+      }).join("")+'</div></div>';
   }
 
+  // På mobil er sidepanelet ei skuff. Den treng ein tydeleg måte å bli ferdig på.
+  h+='<button class="ferdig" id="ferdigknapp">Vis '+filtrert().length+' varsel</button>';
   document.getElementById("rail").innerHTML=h;
+  var fk=document.getElementById("ferdigknapp");
+  if(fk) fk.onclick=function(){ opneSkuff(false); };
 }
 
 /* Kva filtrerer akkurat no? Ein tom skjerm skal aldri vere eit mysterium. */
 function aktiveFilter(){
   var a=[];
   if(S.sok.trim()) a.push({k:"sok", t:'søk: «'+esc(S.sok.trim())+'»'});
-  if(S.po!==null) a.push({k:"po", t:"PO "+S.po+(PONAMN[S.po]?" "+esc(PONAMN[S.po]):"")});
-  if(S.type!==null) a.push({k:"type", t:esc(TYPENAMN[S.type]||S.type)});
+  if(S.po!==null) a.push({k:"po", t:esc(PONAMN[S.po]||("PO "+S.po))});
+  if(S.type!==null) a.push({k:"type", t:esc((GRUPPER.filter(function(g){return g.k===S.type;})[0]||{}).n||S.type)});
   if(S.periode!==null) a.push({k:"periode", t:"siste "+S.periode+" dagar"});
   if(S.rolle==="lev" && S.seg!=="alle") a.push({k:"seg", t:esc(SEGNAMN[S.seg])});
   if(S.rolle==="drift" && S.mine.length) a.push({k:"mine", t:S.mine.length+" anlegg du følgjer"});
@@ -1271,7 +1310,7 @@ function teiknFeed(){
       '</div>';
   } else {
     h+=synleg.map(function(e){
-      var p=poeng(e), r=(S.rolle==="lev"&&S.seg!=="alle")?e.relevans[S.seg]:null;
+      var p=poeng(e), r=(S.rolle==="lev"&&S.seg!=="alle")?relFor(e,S.seg):null;
       var mitt=e.lokalitetsnr&&erMitt(e.lokalitetsnr);
       var meta=[];
       if(e.produksjonsomrade!=null) meta.push(poTekst(e.produksjonsomrade));
@@ -1322,7 +1361,7 @@ function poFarge(st){ return st==="rød"?"var(--po-rod)":st==="gul"?"var(--po-gu
 function status(l){
   // Blåskjell, tare, torsk og østers har ikkje lakselus. Å merke dei
   // «ingen luserapport — det tyder ukjent» er feil og skremmande.
-  if(l.lf===false) return "utanfor";
+  if(l.lf===false || l.gr==null) return "utanfor";
   if(l.lus==null) return "ingen";
   if(l.lus>l.gr) return "over";
   if(l.lus>l.gr*0.6) return "naer";
@@ -1898,6 +1937,12 @@ document.addEventListener("click",function(e){
 });
 
 var tid=null;
+document.addEventListener("change",function(e){
+  if(e.target.id==="povel"){
+    S.po = e.target.value===""?null:+e.target.value;
+    S.vis=30; teiknRail(); teiknBotnfaner(); teikn();
+  }
+});
 document.getElementById("sok").addEventListener("input",function(e){
   clearTimeout(tid); var v=e.target.value;
   tid=setTimeout(function(){ S.sok=v; S.vis=30; teikn(); },170);

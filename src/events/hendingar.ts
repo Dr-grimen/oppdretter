@@ -318,6 +318,21 @@ function soknadKoordinatLokal(s: Soknad): [number, number] | null {
   return [lon, lat];
 }
 
+/** Nokre søknader har rå kode i staden for norsk tekst i soeknadstype-feltet. */
+const SOKNADSTYPE: Record<string, string> = {
+  SPECIAL_INTENTION_SITE_CLEARANCE: "Klarering av lokalitet til særleg føremål",
+  RESEARCH: "Forskingsløyve",
+  RESEARCH_EXPERIMENT_PLAN: "Forskingsløyve, forsøksplan",
+  RESEARCH_EXTENSION: "Forlenging av forskingsløyve",
+};
+function soknadstype(s: Soknad): string {
+  const rå = (s.soeknadstype ?? "").trim();
+  const kjent = SOKNADSTYPE[rå];
+  if (kjent) return kjent;
+  // «... i sjø.» + «, Kommune» gav dobbelt punktum.
+  return rå.replace(/\.\s*$/, "");
+}
+
 export function finnSoknader(soknader: Soknad[], c: Ctx, opne: boolean): Hending[] {
   const ut: Hending[] = [];
   for (const s of soknader) {
@@ -356,7 +371,7 @@ export function finnSoknader(soknader: Soknad[], c: Ctx, opne: boolean): Hending
           : `${s.applicantorganisationname} søkjer om ${s.sitename ?? "ny lokalitet"}`,
       detalj:
         (returnert ? "Sendt i retur til søkjaren — ikkje ein aktiv søknad. " : "") +
-        `${s.soeknadstype}${s.municipalityname ? `, ${s.municipalityname}` : ""}. ` +
+        `${soknadstype(s)}${s.municipalityname ? `, ${s.municipalityname}` : ""}. ` +
         (bitar.length ? `${bitar.join(", ")}. ` : "") +
         (s.netdata_typedescription ? `Not: ${s.netdata_typedescription.slice(0, 120)}` : ""),
       alvor: returnert ? 1 : stor ? 3 : opne ? 2 : 1,
@@ -373,6 +388,25 @@ export function finnSoknader(soknader: Soknad[], c: Ctx, opne: boolean): Hending
 }
 
 /** Toppscore for eit segment, brukt til sortering i feeden. */
+/**
+ * Kor viktig hendinga er for nokon som DRIV eit anlegg, i motsetnad til nokon
+ * som sel til det. Ein søknad frå eit anna selskap er eit salssignal, ikkje
+ * noko ein driftsleiar treng å vite om i dag.
+ */
+export function driftsvekt(h: Hending): number {
+  switch (h.type) {
+    case "over_grensa": return 100;
+    case "sjukdom_paavist": return 90;
+    case "luseauke": return 70;
+    case "behandlingsklynge": return 60;
+    case "behandling": return 45;
+    case "sjukdom_avslutta": return 25;
+    case "soknad_avgjort": return 12;
+    case "ny_soknad": return 10;
+    default: return 20;
+  }
+}
+
 export function score(h: Hending, seg: Segment | "alle"): number {
   if (seg === "alle") {
     const alle = Object.values(h.relevans).map((r) => r.score);
