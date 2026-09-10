@@ -845,15 +845,17 @@ input{font:inherit}
 .leaflet-tile-pane{filter:saturate(.95)}
 :root[data-theme="dark"] .leaflet-tile-pane,
 :root:not([data-theme="light"]) .leaflet-tile-pane{filter:saturate(.75) brightness(.72) contrast(1.05)}
-.lagval{position:absolute;left:12px;top:12px;z-index:500;display:flex;gap:3px;
-  background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:3px;box-shadow:var(--skug)}
-.lagval button{padding:7px 12px;border-radius:5px;font-size:12.5px;color:var(--ink-2);
-  font-family:var(--display);font-weight:600;white-space:nowrap}
-.lagval button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
-.kartkjelde{position:absolute;right:12px;bottom:12px;z-index:500;font-size:10.5px;
+.lagval{position:absolute;left:10px;top:10px;z-index:500;display:flex;gap:2px;
+  background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:2px;box-shadow:var(--skug)}
+.lagval button{padding:5px 10px;border-radius:4px;font-size:12px;color:var(--ink-3);
+  font-family:var(--display);font-weight:600;white-space:nowrap;line-height:1.3}
+.lagval button[aria-pressed="true"]{background:var(--accent);color:#fff}
+:root[data-theme="dark"] .lagval button[aria-pressed="true"],
+:root:not([data-theme="light"]) .lagval button[aria-pressed="true"]{color:#08131F}
+.kartkjelde{position:absolute;right:10px;bottom:10px;z-index:500;font-size:10.5px;
   color:var(--ink-3);background:var(--surface);padding:3px 8px;border-radius:4px;
   border:1px solid var(--line-2);opacity:.92}
-@media(max-width:720px){.lagval button{padding:10px 13px;font-size:13px}.lagval{left:12px;top:12px}}
+@media(max-width:720px){.lagval button{padding:8px 12px;font-size:13px}}
 .kartboks svg.drar{cursor:grabbing}
 .po-omr{fill:var(--surface-2);stroke:var(--line);stroke-width:.5;vector-effect:non-scaling-stroke}
 .po-omr.g{fill:color-mix(in srgb,var(--po-gron) 24%,var(--surface))}
@@ -867,11 +869,11 @@ input{font:inherit}
 .baat{fill:var(--baat);stroke:var(--surface);stroke-width:.5;vector-effect:non-scaling-stroke;cursor:pointer}
 .baat.bb{fill:var(--baat)} .baat.sv{fill:var(--ink-3);opacity:.75}
 .baat.ved{stroke:var(--kritisk);stroke-width:2}
-.zoom{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:4px}
-.zoom button{width:32px;height:32px;background:var(--surface);border:1px solid var(--line);border-radius:6px;font-size:17px;line-height:1;color:var(--ink-2);box-shadow:var(--skug);display:flex;align-items:center;justify-content:center}
+.zoom{position:absolute;right:10px;top:10px;z-index:500;display:flex;flex-direction:column;gap:4px}
+.zoom button{width:34px;height:34px;background:var(--surface);border:1px solid var(--line);border-radius:6px;font-size:17px;line-height:1;color:var(--ink-2);box-shadow:var(--skug);display:flex;align-items:center;justify-content:center}
 .zoom button:hover{color:var(--accent);border-color:var(--accent)}
 .zoom button.nullstill{font-size:11px;font-family:var(--display);font-weight:600}
-.teikn{position:absolute;left:10px;bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 11px;font-size:11.5px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--skug)}
+.teikn{position:absolute;left:10px;bottom:10px;z-index:500;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:9px 11px;font-size:11.5px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--skug)}
 .teikn div{display:flex;align-items:center;gap:7px;color:var(--ink-2)}
 .teikn s{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
 .hjelp{position:absolute;right:10px;bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--ink-3);box-shadow:var(--skug)}
@@ -1011,8 +1013,8 @@ input{font:inherit}
 
   /* kart og panel */
   .kartboks{height:calc(100vh - var(--topp) - var(--botn-bar) - 120px);min-height:340px}
-  .zoom{right:12px;top:12px;gap:7px}
-  .zoom button{width:44px;height:44px;font-size:20px}
+  .zoom{right:10px;top:10px;gap:6px}
+  .zoom button{width:42px;height:42px;font-size:19px}
   .teikn{font-size:11px;padding:8px 10px;left:12px;bottom:12px}
   .hjelp{display:none}
   .panel{padding:14px}
@@ -1108,7 +1110,7 @@ var PONAMN = {}; D.po.forEach(function(p){ PONAMN[p.id]=p.nm; });
 var LOK = {}; D.lokalitetar.forEach(function(l){ LOK[l.n]=l; });
 var FARTOY = D.fartoy || [];
 
-var S_lag="sjokart";
+var S_lag="kart";
 var S = {fane:"feed", rolle:"drift", seg:"alle", po:null, type:null,
          vis:30, valt:null, valtBaat:null, sok:"", mine:[], baatfilter:"bb", ring:20, periode:null, skuff:false, leggtil:""};
 
@@ -1442,12 +1444,12 @@ function teiknFeed(){
    «Enkelt», som er teikna av produksjonsområde-polygona og alltid virkar. */
 
 var FLISER = {
+  kart: { namn:"Kart",
+    url:"https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png",
+    maks:18, kjelde:"Kart: Kartverket (NLOD)" },
   sjokart: { namn:"Sjøkart",
     url:"https://cache.kartverket.no/v1/wmts/1.0.0/sjokartraster/default/webmercator/{z}/{y}/{x}.png",
     maks:18, kjelde:"Sjøkart: Kartverket (NLOD)" },
-  topo: { namn:"Kart",
-    url:"https://cache.kartverket.no/v1/wmts/1.0.0/topo/default/webmercator/{z}/{y}/{x}.png",
-    maks:18, kjelde:"Topografisk kart: Kartverket (NLOD)" },
   enkelt: { namn:"Enkelt", url:null, maks:14, kjelde:"Produksjonsområde: Fiskeridirektoratet (NLOD)" }
 };
 var kart=null, flislag=null, poLag=null, punktLag=null, baatLag=null, flisFeil=0;
@@ -1480,6 +1482,22 @@ function kartMangler(){
     '</div>';
 }
 
+function startPosisjon(){
+  if(S.mine.length){
+    var l=LOK[S.mine[0]];
+    if(l) return {senter:[l.la,l.lo], zoom:10};
+  }
+  if(S.po!==null){
+    var i=D.lokalitetar.filter(function(x){return x.po===S.po;});
+    if(i.length){
+      var la=i.reduce(function(a,x){return a+x.la;},0)/i.length;
+      var lo=i.reduce(function(a,x){return a+x.lo;},0)/i.length;
+      return {senter:[la,lo], zoom:8};
+    }
+  }
+  return null;
+}
+
 function byggKart(){
   kart = L.map("lkart", {
     center: NOREG, zoom: 5, minZoom: 4, maxZoom: 18,
@@ -1492,6 +1510,9 @@ function byggKart(){
     // 1 377 anlegg fint og alltid får rett storleik. Canvas-renderaren
     // fekk feil lerretstorleik når containeren blei målt for tidleg.
   });
+  // Opne der brukaren faktisk er: på anlegget hans, elles på området hans.
+  var start=startPosisjon();
+  if(start) kart.setView(start.senter, start.zoom);
   poLag = L.layerGroup().addTo(kart);
   punktLag = L.layerGroup().addTo(kart);
   baatLag = L.layerGroup().addTo(kart);
@@ -1543,15 +1564,17 @@ function teiknPunkt(){
   punktLag.clearLayers();
   var sok=S.sok.toLowerCase().trim();
   var z=kart.getZoom();
-  var r = z<7 ? 2.6 : z<9 ? 3.6 : z<12 ? 5 : 7;
+  // Prikkane var så små at anlegga ikkje var synlege på oversiktsnivå.
+  var r = z<6 ? 3.4 : z<8 ? 4.4 : z<10 ? 5.6 : z<12 ? 7 : 8.5;
   D.lokalitetar.forEach(function(l){
     if(sok && (l.nm+" "+(l.s||"")).toLowerCase().indexOf(sok)<0) return;
     var st=status(l), mitt=erMitt(l.n), valt=S.valt===l.n;
     L.circleMarker([l.la,l.lo], {
-      radius: (l.lus!=null?r:r*0.72)*(mitt?1.5:1),
-      fillColor: css(PKTFARGE[st]), fillOpacity: (st==="ingen"||st==="utanfor")?0.4:0.92,
-      color: valt?css("--ink"):(mitt?css("--accent"):css("--surface")),
-      weight: (valt||mitt)?2.4:0.8
+      radius: (l.lus!=null?r:r*0.7)*(mitt?1.45:1),
+      fillColor: css(PKTFARGE[st]),
+      fillOpacity: (st==="ingen"||st==="utanfor")?0.5:1,
+      color: valt?css("--ink"):(mitt?css("--accent"):"#fff"),
+      weight: (valt||mitt)?2.6:1.2
     }).addTo(punktLag)
       .bindTooltip(l.nm + (l.lus!=null
         ? " — "+l.lus.toFixed(2)+" holus (grense "+l.gr+")"
@@ -1648,7 +1671,7 @@ function kopleKart(medBaat){
     b.onclick=function(){
       if(b.dataset.zoom==="inn") kart.zoomIn();
       else if(b.dataset.zoom==="ut") kart.zoomOut();
-      else kart.setView(NOREG,5);
+      else { var st=startPosisjon(); kart.setView(st?st.senter:NOREG, st?st.zoom:5); }
     };
   });
 }
