@@ -52,14 +52,25 @@ export async function hentSanntid(): Promise<AisPosisjon[]> {
     const lon = p[0], lat = p[1];
     if (typeof lon !== "number" || typeof lat !== "number") continue;
     const pr = f.properties;
+    // AIS har sentinelverdiar som tyder «ukjent», ikkje ei måling:
+    //   fart 102.3 kn (1023), kurs 360.0° (3600), kurs 511 = ukjent retning.
+    // Utan denne reinsinga blir «102,3 knop» og «på veg mot nord (360°)» vist
+    // som om det var observert.
+    const raFart = pr["speed"];
+    const raKurs = pr["cog"];
+    const fart = raFart === null || raFart === undefined || Number(raFart) >= 102.3
+      ? null : Number(raFart);
+    const kurs = raKurs === null || raKurs === undefined ||
+      Number(raKurs) >= 360 || Number(raKurs) < 0 ? null : Number(raKurs);
+
     ut.push({
       mmsi: Number(pr["mmsi"]),
       namn: (pr["ship_name"] as string) || null,
       imo: pr["imo"] ? Number(pr["imo"]) : null,
       kallesignal: (pr["callsign"] as string) || null,
       lat, lon,
-      fart: pr["speed"] === null || pr["speed"] === undefined ? null : Number(pr["speed"]),
-      kurs: pr["cog"] === null || pr["cog"] === undefined ? null : Number(pr["cog"]),
+      fart,
+      kurs,
       lengd: pr["length"] ? Number(pr["length"]) : null,
       djupgang: pr["draught"] ? Number(pr["draught"]) : null,
       destinasjon: (pr["destination"] as string) || null,

@@ -6,15 +6,16 @@
  */
 import { writeFileSync, mkdirSync } from "node:fs";
 import { hentVeke, type Luserapport } from "./ingest/mattilsynet.ts";
-import { lesLoyverader, tilLokalitetar, type Lokalitet } from "./ingest/akvakulturregister.ts";
+import { lesLoyverader, tilLokalitetar, offentlegEigar, type Lokalitet } from "./ingest/akvakulturregister.ts";
 import { lesProduksjonsomrade, fyllProduksjonsomrade } from "./ingest/produksjonsomrade.ts";
+import { finnFoerste } from "./lib/geo.ts";
 import { hentSjukdom, hentSoknader, hentBiomasse } from "./ingest/kjelder.ts";
 import { hentSanntid, hentSkipsinfo, gruppe, finnVedAnlegg } from "./ingest/ais.ts";
 import { lesSoner, soneFor } from "./ingest/soner.ts";
 import { hentBronnbatregister, pakallesignal, type Transporteining } from "./ingest/bronnbatregister.ts";
 import {
   finnOverGrensa, finnLuseauke, finnBehandling, finnKlynger,
-  finnSjukdom, finnSoknader, score, SEGMENT, type Hending,
+  finnSjukdom, finnSoknader, settPoOppslag, score, SEGMENT, type Hending,
 } from "./events/hendingar.ts";
 import { lusegrense } from "./events/lusegrense.ts";
 import { readFileSync } from "node:fs";
@@ -33,9 +34,17 @@ function isoVeke(d: Date): { aar: number; uke: number } {
   return { aar, uke: 1 + Math.round((t.getTime() - f.getTime()) / (7 * 864e5)) };
 }
 
+/** Talet på ISO-veker i eit år: 53 når 1. januar er torsdag, eller når det er
+ *  skotår og 1. januar er onsdag. 2026 har 53. */
+function vekerIAar(aar: number): number {
+  const jan1 = new Date(Date.UTC(aar, 0, 1)).getUTCDay();
+  const skot = (aar % 4 === 0 && aar % 100 !== 0) || aar % 400 === 0;
+  return jan1 === 4 || (skot && jan1 === 3) ? 53 : 52;
+}
+
 function forrige(aar: number, uke: number, n: number): { aar: number; uke: number } {
   let a = aar, u = uke - n;
-  while (u < 1) { a--; u += 52; }
+  while (u < 1) { a--; u += vekerIAar(a); }
   return { aar: a, uke: u };
 }
 
@@ -90,6 +99,7 @@ const harFisk = new Map(biomasse.map((b) => [b.loknr, b.har_fisk === "Ja"]));
 console.log(`  biomasse        ${biomasse.length} (${[...harFisk.values()].filter(Boolean).length} med fisk)`);
 
 // ── Hendingar ───────────────────────────────────────────────────────────────
+settPoOppslag((lon, lat) => finnFoerste(lon, lat, poLag)?.id ?? null);
 const c = { lok };
 const hendingar: Hending[] = [
   ...finnOverGrensa(sisteRapportar, c),
@@ -205,6 +215,13 @@ for (const r of sisteRapportar) {
 const soner = lesSoner(mappe);
 console.log(`  aktive soner    ${soner.length}`);
 
+/** Lusegrensa i FOR-2012-12-05-1140 § 8 gjeld laksefisk. Blåskjell, tare,
+ *  torsk og østers har ikkje lakselus, og skal ikkje merkast «ingen luserapport». */
+const LAKSEFISK = ["LAKS", "ØRRET", "REGNBUEØRRET", "REGNBUEAURE", "AURE"];
+function harLaksefisk(l: Lokalitet): boolean {
+  return l.artar.some((a) => LAKSEFISK.some((k) => a.toUpperCase().includes(k)));
+}
+
 const kartLok = lokalitetar
   .filter((l) => l.lat !== null && l.lon !== null && l.plassering !== "LAND")
   .map((l) => {
@@ -218,10 +235,11 @@ const kartLok = lokalitetar
       lo: Math.round((l.lon ?? 0) * 1e4) / 1e4,
       po: l.produksjonsomrade,
       f: l.fylke,
-      s: l.innehavarar[0]?.namn ?? null,
+      s: offentlegEigar(l),
       k: l.kapasitetEining === "TN" ? l.kapasitet : null,
       lus: lus ?? null,
       gr: g.verdi,
+      lf: harLaksefisk(l),
       fisk: harFisk.get(nr) ?? null,
       km: l.kommune,
       ar: l.artar,
@@ -285,7 +303,10 @@ const data = {
     bronnbat: fartoy.filter((f) => f.g === "brønnbåt").length,
     godkjend: fartoy.filter((f) => f.g === "godkjend").length,
     registrerte: 0, // fyllast under
-    vedAnlegg: vedAnlegg.length,
+    // Berre godkjende brønnbåtar og «Fish Carrier» — ikkje losbåtar, ferjer
+    // og redningsskøyter som tilfeldigvis ligg innanfor 500 m.
+    vedAnlegg: fartoy.filter((f) => f.ved && (f.g === "godkjend" || f.g === "brønnbåt")).length,
+    vedAnleggAlle: vedAnlegg.length,
   },
 };
 

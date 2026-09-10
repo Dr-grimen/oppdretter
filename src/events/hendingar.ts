@@ -5,7 +5,7 @@
  * og ein occurred_on som er RAPPORTVEKA — ikkje hentetidspunktet.
  */
 import type { Luserapport } from "../ingest/mattilsynet.ts";
-import type { Lokalitet } from "../ingest/akvakulturregister.ts";
+import { offentlegEigar, type Lokalitet } from "../ingest/akvakulturregister.ts";
 import type { Sjukdomstilfelle, Soknad } from "../ingest/kjelder.ts";
 import { lusegrense, erOverGrensa, region } from "./lusegrense.ts";
 
@@ -70,8 +70,8 @@ function grunnlag(r: Luserapport, c: Ctx): Omit<Hending, "natural_key" | "type" 
   return {
     lokalitetsnr: r.lokalitetsnummer,
     lokalitetsnamn: r.lokalitetsnavn,
-    selskap: r.organisasjonsnavn ?? l?.innehavarar[0]?.namn ?? null,
-    orgnr: r.organisasjonsnummer ?? l?.innehavarar[0]?.orgnr ?? null,
+    selskap: r.organisasjonsnavn ?? (l ? offentlegEigar(l) : null),
+    orgnr: r.organisasjonsnummer ?? l?.innehavarar.find((i) => !i.erPrivatperson)?.orgnr ?? null,
     produksjonsomrade: l?.produksjonsomrade ?? null,
     fylke: l?.fylke ?? null,
     dato: vekeStart(r.år, r.uke),
@@ -136,8 +136,8 @@ export function finnLuseauke(
     ut.push({
       lokalitetsnr: loknr,
       lokalitetsnamn: l.namn,
-      selskap: l.innehavarar[0]?.namn ?? null,
-      orgnr: l.innehavarar[0]?.orgnr ?? null,
+      selskap: offentlegEigar(l),
+      orgnr: l.innehavarar.find((i) => !i.erPrivatperson)?.orgnr ?? null,
       produksjonsomrade: l.produksjonsomrade,
       fylke: l.fylke,
       dato: vekeStart(d.aar, d.uke),
@@ -244,7 +244,7 @@ export function finnSjukdom(saker: Sjukdomstilfelle[], c: Ctx): Hending[] {
     const base = {
       lokalitetsnr: s.lokalitetsnummer,
       lokalitetsnamn: s.lokalitetsnavn,
-      selskap: l?.innehavarar[0]?.namn ?? null,
+      selskap: l ? offentlegEigar(l) : null,
       orgnr: l?.innehavarar[0]?.orgnr ?? null,
       produksjonsomrade: l?.produksjonsomrade ?? null,
       fylke: l?.fylke ?? null,
@@ -252,15 +252,24 @@ export function finnSjukdom(saker: Sjukdomstilfelle[], c: Ctx): Hending[] {
       lon: l?.lon ?? null,
     };
 
+    // Ei sak som er avslutta skal ikkje stå som eit pågåande utbrot.
+    const paagaar = !s.avslutningsdato;
     if (s.diagnosedato) {
       ut.push({
         ...base,
         dato: s.diagnosedato.slice(0, 10),
         natural_key: `sjukdom:${s.id}:paavist`,
         type: "sjukdom_paavist",
-        tittel: `${sjukdom}${sub} påvist på ${s.lokalitetsnavn}`,
-        detalj: `Diagnose stilt ${s.diagnosedato.slice(0, 10)}.${s.varslingsdato ? ` Varsla ${s.varslingsdato.slice(0, 10)}.` : ""} Anlegget kjem truleg inn i ei kontrollsone.`,
-        alvor: 3,
+        tittel: paagaar
+          ? `${sjukdom}${sub} påvist på ${s.lokalitetsnavn}`
+          : `${sjukdom}${sub} blei påvist på ${s.lokalitetsnavn}`,
+        detalj:
+          `Diagnose stilt ${s.diagnosedato.slice(0, 10)}.` +
+          (s.varslingsdato ? ` Varsla ${s.varslingsdato.slice(0, 10)}.` : "") +
+          (paagaar
+            ? " Saka er ikkje avslutta. Anlegget kjem truleg inn i ei kontrollsone."
+            : ` Saka blei avslutta ${s.avslutningsdato?.slice(0, 10)}.`),
+        alvor: paagaar ? 3 : 1,
         relevans: {
           service: { score: 70, why: "Sjukdomsutbrot utløyser desinfeksjon, ekstra tilsyn og strengare rutinar." },
           bronnbat: { score: 60, why: "ILA endar ofte i utslakting. PD gir restriksjonar på flytting." },
@@ -290,6 +299,25 @@ export function finnSjukdom(saker: Sjukdomstilfelle[], c: Ctx): Hending[] {
   return ut;
 }
 
+/** Sett av bygget, så hendingsreglane slepp å kjenne til geometri. */
+let poOppslag: ((lon: number, lat: number) => number | null) | null = null;
+export function settPoOppslag(f: (lon: number, lat: number) => number | null): void {
+  poOppslag = f;
+}
+function poFraPunkt(s: Soknad): number | null {
+  if (!poOppslag) return null;
+  const k = soknadKoordinatLokal(s);
+  return k ? poOppslag(k[0], k[1]) : null;
+}
+/** Koordinatane kjem som grader ganga med 100 (6581.14 = 65,8114 °N). */
+function soknadKoordinatLokal(s: Soknad): [number, number] | null {
+  const la = s.sitelatitudedecimaldegree, lo = s.sitelongitudedecimaldegree;
+  if (la === null || lo === null) return null;
+  const lat = la / 100, lon = lo / 100;
+  if (lat < 55 || lat > 82 || lon < -5 || lon > 40) return null;
+  return [lon, lat];
+}
+
 export function finnSoknader(soknader: Soknad[], c: Ctx, opne: boolean): Hending[] {
   const ut: Hending[] = [];
   for (const s of soknader) {
@@ -312,7 +340,9 @@ export function finnSoknader(soknader: Soknad[], c: Ctx, opne: boolean): Hending
       lokalitetsnamn: s.sitename ?? "Ny lokalitet",
       selskap: s.applicantorganisationname,
       orgnr: s.applicantorganisationnumber,
-      produksjonsomrade: l?.produksjonsomrade ?? null,
+      // Fell tilbake til PO frå koordinatane når søknaden ikkje har eit
+      // lokalitetsnummer enno — elles gøymer områdefilteret kvar einaste søknad.
+      produksjonsomrade: l?.produksjonsomrade ?? poFraPunkt(s) ?? null,
       fylke: s.countymunicipalityname ?? l?.fylke ?? null,
       dato,
       lat: l?.lat ?? null,

@@ -752,6 +752,15 @@ input{font:inherit}
 
 /* ── feed ───────────────────────────────────────────── */
 .feed{display:flex;flex-direction:column;gap:8px;min-width:0}
+.filterlinje{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 11px;margin-bottom:2px;
+  background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r);font-size:12.5px}
+.filterlinje>span{color:var(--ink-3)}
+.filterlinje button{padding:3px 9px;border-radius:20px;background:var(--surface);
+  border:1px solid var(--line);color:var(--ink-2);font-size:12px}
+.filterlinje button:hover{border-color:var(--kritisk);color:var(--kritisk)}
+.filterlinje .nullstillalt{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-weight:600}
+.filterlinje .nullstillalt:hover{color:var(--accent);border-color:var(--accent)}
+@media(max-width:720px){.filterlinje{font-size:13px}.filterlinje button{padding:7px 12px}}
 .feed-topp{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:2px;flex-wrap:wrap}
 .feed-topp h2{font-size:17px}
 .feed-topp p{margin:0;font-size:13px;color:var(--ink-3)}
@@ -909,6 +918,7 @@ input{font:inherit}
 .botn{max-width:1440px;margin:0 auto;padding:20px 18px 40px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3);line-height:1.6}
 .botn p{margin:0 0 6px;max-width:80ch}
 .botn b{color:var(--ink-2);font-weight:600}
+.botn a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 
 /* ══ MOBIL ═══════════════════════════════════════════════════════
    Under 720 px: fanene flyttar seg ned der tommelen er, filtera
@@ -1033,8 +1043,8 @@ input{font:inherit}
 <nav class="botnfaner" id="botnfaner" aria-label="Hovudmeny"></nav>
 
 <footer class="botn">
-  <p><b>Kjelder.</b> Lakselus, sjukdom og behandlingar: Mattilsynet. Lokalitetar, løyve, produksjonsområde og søknader: Fiskeridirektoratet. Sjukdomssoner: BarentsWatch. Fartøy: Kystdatahuset hos Kystverket.</p>
-  <p>Inneheld data under Norsk lisens for offentlege data (NLOD), tilgjengeleggjort av Mattilsynet, Fiskeridirektoratet og Kystverket. Data er bearbeidde av oss. Desse etatane står ikkje bak tenesta.</p>
+  <p><b>Kjelder.</b> Lakselus, sjukdom, behandlingar og brønnbåtregister: Mattilsynet. Lokalitetar, løyve, produksjonsområde, biomasse og søknader: Fiskeridirektoratet. Sjukdomssoner: BarentsWatch. Fartøysposisjonar: Kystdatahuset hos Kystverket. Sjøkart og topografisk kart: Kartverket.</p>
+  <p>Inneheld data under <a href="https://data.norge.no/nlod/no/2.0" rel="noopener noreferrer" target="_blank">Norsk lisens for offentlege data (NLOD)</a>, tilgjengeleggjort av Mattilsynet, Fiskeridirektoratet, Kystverket og Kartverket. Data er bearbeidde av oss. Desse etatane står ikkje bak tenesta.</p>
   <p><b>Les dette før du stolar på tala.</b> Tala er slik oppdrettarane rapporterte dei, utan kvalitetssikring. Eit anlegg utan luserapport er <em>ukjent</em>, ikkje trygt. Stamfisk kan ha løyve til høgare grense. Båtar av typen «Fish Carrier» kan vere brønnbåt <em>eller</em> slaktebåt — opne data skil dei ikkje. Fiskefartøy under 15 m og fritidsbåtar under 45 m er ikkje med i AIS.</p>
   <p id="bygdmerke"></p>
 </footer>
@@ -1215,6 +1225,34 @@ function teiknRail(){
   document.getElementById("rail").innerHTML=h;
 }
 
+/* Kva filtrerer akkurat no? Ein tom skjerm skal aldri vere eit mysterium. */
+function aktiveFilter(){
+  var a=[];
+  if(S.sok.trim()) a.push({k:"sok", t:'søk: «'+esc(S.sok.trim())+'»'});
+  if(S.po!==null) a.push({k:"po", t:"PO "+S.po+(PONAMN[S.po]?" "+esc(PONAMN[S.po]):"")});
+  if(S.type!==null) a.push({k:"type", t:esc(TYPENAMN[S.type]||S.type)});
+  if(S.periode!==null) a.push({k:"periode", t:"siste "+S.periode+" dagar"});
+  if(S.rolle==="lev" && S.seg!=="alle") a.push({k:"seg", t:esc(SEGNAMN[S.seg])});
+  if(S.rolle==="drift" && S.mine.length) a.push({k:"mine", t:S.mine.length+" anlegg du følgjer"});
+  return a;
+}
+function filterLinje(){
+  var a=aktiveFilter();
+  if(!a.length) return "";
+  return '<div class="filterlinje"><span>Filtrert på</span>'+
+    a.map(function(f){ return '<button data-fjernfilter="'+f.k+'" title="Fjern">'+f.t+' ×</button>'; }).join("")+
+    '<button class="nullstillalt" data-fjernfilter="alt">Vis alt</button></div>';
+}
+function fjernFilter(k){
+  if(k==="sok"||k==="alt"){ S.sok=""; var i=document.getElementById("sok"); if(i) i.value=""; }
+  if(k==="po"||k==="alt") S.po=null;
+  if(k==="type"||k==="alt") S.type=null;
+  if(k==="periode"||k==="alt") S.periode=null;
+  if(k==="seg"||k==="alt") S.seg="alle";
+  if(k==="mine"||k==="alt") { if(k==="alt") S.rolle="lev"; }
+  S.vis=30; teiknRail(); teiknBotnfaner(); teikn();
+}
+
 /* ── feed ── */
 function teiknFeed(){
   var liste=filtrert(), synleg=liste.slice(0,S.vis);
@@ -1224,9 +1262,13 @@ function teiknFeed(){
     : (S.seg==="alle"?"Alle varsel, sortert etter kor mykje dei betyr for nokon."
                      :"Sortert etter kva som betyr mest når du leverer "+SEGNAMN[S.seg].toLowerCase()+".");
 
-  var h='<div class="feed-topp"><h2>'+liste.length+(liste.length===1?" varsel":" varsel")+'</h2><p>'+esc(innl)+'</p></div>';
+  var h='<div class="feed-topp"><h2>'+liste.length+' varsel</h2><p>'+esc(innl)+'</p></div>'+filterLinje();
   if(!liste.length){
-    h+='<div class="tom">Ingen varsel med desse vala.<br>Prøv å velje «Heile landet» eller «Alle» typar.</div>';
+    var af=aktiveFilter();
+    h+='<div class="tom">Ingen varsel'+(af.length?' med desse vala':'')+'.'+
+      (af.length?'<br>Du filtrerer på '+af.map(function(f){return f.t;}).join(", ")+
+        '.<br><button class="meir" data-fjernfilter="alt" style="margin-top:12px">Vis alt</button>':'')+
+      '</div>';
   } else {
     h+=synleg.map(function(e){
       var p=poeng(e), r=(S.rolle==="lev"&&S.seg!=="alle")?e.relevans[S.seg]:null;
@@ -1278,12 +1320,15 @@ try{ var l0=localStorage.getItem("oppdretter.lag"); if(l0&&FLISER[l0]) S_lag=l0;
 
 function poFarge(st){ return st==="rød"?"var(--po-rod)":st==="gul"?"var(--po-gul)":"var(--po-gron)"; }
 function status(l){
+  // Blåskjell, tare, torsk og østers har ikkje lakselus. Å merke dei
+  // «ingen luserapport — det tyder ukjent» er feil og skremmande.
+  if(l.lf===false) return "utanfor";
   if(l.lus==null) return "ingen";
   if(l.lus>l.gr) return "over";
   if(l.lus>l.gr*0.6) return "naer";
   return "ok";
 }
-var PKTFARGE={over:"--kritisk",naer:"--varsel",ok:"--rolig",ingen:"--ink-3"};
+var PKTFARGE={over:"--kritisk",naer:"--varsel",ok:"--rolig",ingen:"--ink-3",utanfor:"--ink-3"};
 function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
 function byggKart(){
@@ -1352,7 +1397,7 @@ function teiknPunkt(){
     var st=status(l), mitt=erMitt(l.n), valt=S.valt===l.n;
     L.circleMarker([l.la,l.lo], {
       radius: (l.lus!=null?r:r*0.72)*(mitt?1.5:1),
-      fillColor: css(PKTFARGE[st]), fillOpacity: st==="ingen"?0.45:0.92,
+      fillColor: css(PKTFARGE[st]), fillOpacity: (st==="ingen"||st==="utanfor")?0.4:0.92,
       color: valt?css("--ink"):(mitt?css("--accent"):css("--surface")),
       weight: (valt||mitt)?2.4:0.8
     }).addTo(punktLag)
@@ -1398,7 +1443,7 @@ function kartSkal(medBaat){
       : '<div><s style="background:var(--kritisk)"></s>Over lusegrensa</div>'+
         '<div><s style="background:var(--varsel)"></s>Nærmar seg grensa</div>'+
         '<div><s style="background:var(--rolig)"></s>Under grensa</div>'+
-        '<div><s style="background:var(--ink-3);opacity:.45"></s>Ingen rapport</div>')+
+        '<div><s style="background:var(--ink-3);opacity:.45"></s>Ingen rapport eller ikkje laksefisk</div>')+
     '</div>'+
     '<div class="kartkjelde"></div>'+
   '</div>';
@@ -1575,7 +1620,8 @@ function baatKort(f){
   if(f.fa!=null || f.ku!=null){
     h+='<div class="kompass">'+(f.ku!=null?kompassSvg(f.ku):'')+
       '<div><b>'+(f.fa!=null?f.fa.toFixed(1)+" kn":"—")+'</b>'+
-      '<span>'+(f.fa!=null&&f.fa<0.5?"ligg stille":
+      '<span>'+(f.fa==null?"fart ikkje meldt":
+        f.fa<0.5?"ligg stille":
         (f.ku!=null?"på veg mot "+himmelretning(f.ku)+" ("+Math.round(f.ku)+"°)":"i fart"))+'</span></div></div>';
   }
 
@@ -1618,7 +1664,7 @@ function baatKort(f){
    innan 10 km luserapport i det heile, og eit snitt av to anlegg lyg. */
 function fjordBolk(l){
   var r=S.ring, nb=naboar(l.n,r);
-  var medFisk=nb.filter(function(x){return x.l.fisk===true;});
+  var medFisk=nb.filter(function(x){return x.l.fisk===true && x.l.lf!==false;});
   var medLus=nb.filter(function(x){return x.l.lus!=null;});
   var over=medLus.filter(function(x){return x.l.lus>x.l.gr;});
   var snitt=medLus.length?medLus.reduce(function(a,x){return a+x.l.lus;},0)/medLus.length:null;
@@ -1687,7 +1733,8 @@ function teiknAnlegg(){
   var over=medLus.filter(function(l){return l.lus>l.gr;}).length;
 
   var h='<div class="liste-topp"><h2>'+liste.length+' anlegg</h2>'+
-    '<p>'+esc(omr)+' · '+medLus.length+' med luserapport'+(over?" · "+over+" over grensa":"")+'</p></div>';
+    '<p>'+esc(omr)+' · '+medLus.length+' med luserapport'+(over?" · "+over+" over grensa":"")+'</p></div>'+
+    filterLinje();
 
   if(!liste.length){
     document.getElementById("innhald").innerHTML=
@@ -1702,7 +1749,9 @@ function teiknAnlegg(){
     if(b!==forrigeBokstav){ h+='<div class="bokstav">'+esc(b)+'</div>'; forrigeBokstav=b; }
     var st=status(l);
     var kl = st==="ingen" ? "ingen" : st==="over" ? "over" : st==="naer" ? "naer" : "";
-    var tal = l.lus==null ? "ingen rapport" : l.lus.toFixed(2)+'<i> /'+l.gr+'</i>';
+    var tal = l.lf===false ? "ikkje laksefisk"
+            : l.lus==null ? "ingen rapport"
+            : l.lus.toFixed(2)+'<i> /'+l.gr+'</i>';
     var fisk = l.fisk===true ? '<span class="fisk ja">fisk</span>'
              : l.fisk===false ? '<span class="fisk">tom</span>'
              : '<span class="fisk">ukjent</span>';
@@ -1766,7 +1815,9 @@ function teiknPanel(){
   var boks = st==="over" ? ["s-over", l.lus.toFixed(2), "Over lusegrensa på "+l.gr+". Tiltak skal setjast inn omgåande."]
     : st==="naer" ? ["s-naer", l.lus.toFixed(2), "Nærmar seg grensa på "+l.gr+"."]
     : st==="ok" ? ["s-ok", l.lus.toFixed(2), "Under grensa på "+l.gr+"."]
-    : ["s-ingen","—","Ingen luserapport denne veka. Det tyder ukjent, ikkje trygt."];
+    : st==="utanfor"
+      ? ["s-ingen","—","Ikkje eit laksefiskanlegg. Lusegrensa gjeld ikkje her."]
+      : ["s-ingen","—","Ingen luserapport denne veka. Det tyder ukjent, ikkje trygt."];
 
   var baatVed=FARTOY.filter(function(f){return f.ved&&f.ved.n===l.n;});
 
@@ -1774,7 +1825,7 @@ function teiknPanel(){
     '<h3>'+esc(l.nm)+'</h3><p class="selskap">'+esc(l.s||"ukjend eigar")+'</p>'+
     '<div class="status-stor '+boks[0]+'"><b>'+boks[1]+'</b><span>'+esc(boks[2])+'</span></div>'+
     '<div class="rad"><span>Vaksne holus per fisk</span><b>'+(l.lus!=null?l.lus.toFixed(2):"—")+'</b></div>'+
-    '<div class="rad"><span>Lusegrense denne veka</span><b>'+l.gr+'</b></div>'+
+    (l.lf===false?'':'<div class="rad"><span>Lusegrense denne veka</span><b>'+l.gr+'</b></div>')+
     '<div class="rad"><span>Område</span><b>'+esc(poTekst(l.po)||"—")+'</b></div>'+
     '<div class="rad"><span>Fylke</span><b>'+esc(l.f||"—")+'</b></div>'+
     '<div class="rad"><span>Største lov biomasse</span><b>'+(l.k!=null?l.k.toLocaleString("nn-NO")+" t":"—")+'</b></div>'+
@@ -1843,6 +1894,7 @@ document.addEventListener("click",function(e){
   if("po" in b.dataset){ S.po=b.dataset.po===""?null:+b.dataset.po; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
   if("type" in b.dataset){ S.type=b.dataset.type===""?null:b.dataset.type; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
   if("per" in b.dataset){ S.periode=b.dataset.per===""?null:+b.dataset.per; S.vis=30; teiknRail(); teiknBotnfaner(); teikn(); return; }
+  if(b.dataset.fjernfilter){ fjernFilter(b.dataset.fjernfilter); return; }
 });
 
 var tid=null;

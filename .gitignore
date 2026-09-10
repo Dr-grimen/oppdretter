@@ -10,4 +10,5 @@ data/snapshots/
 
 # Bygde filer — blir laga på nytt kvar dag av .github/workflows/dagleg.yml
 app/index.html
+app/artifact.html
 data/app/

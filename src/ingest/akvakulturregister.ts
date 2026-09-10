@@ -175,3 +175,18 @@ export function tilLokalitetar(rader: LoyveRad[]): Lokalitet[] {
 
   return [...kart.values()];
 }
+
+/**
+ * Namnet som kan visast offentleg for eit anlegg.
+ *
+ * Registeret har 43 privatpersonar som eig 50 lokalitetar. Å publisere namnet
+ * deira i eit kommersielt produkt er ei anna sak juridisk enn å publisere eit
+ * selskapsnamn. Vi vel difor eit selskap om det finst, og skriv elles berre at
+ * eigaren er ein privatperson.
+ */
+export function offentlegEigar(l: Lokalitet): string | null {
+  const selskap = l.innehavarar.find((i) => !i.erPrivatperson && i.orgnr);
+  if (selskap) return selskap.namn;
+  if (l.innehavarar.length) return "privat eigar";
+  return null;
+}
