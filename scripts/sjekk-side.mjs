@@ -34,6 +34,14 @@ if (d) {
   if (!d.veke?.uke) feil.push("manglar rapportveke");
   const medLus = d.lokalitetar?.filter((l) => l.lus !== null).length ?? 0;
   if (medLus < 200) feil.push(`berre ${medLus} anlegg har lusetal — venta over 200`);
+  // Feilar AIS under bygginga, blir fartoy tom. Då seier Båtar-fana at det er
+  // null brønnbåtar i sjøen — ei aktiv løgn, ikkje ei feilmelding.
+  const fartoy = d.fartoy?.length ?? 0;
+  if (fartoy < 100) feil.push(`berre ${fartoy} fartøy — AIS har truleg feila`);
+  const godkjende = d.fartoy?.filter((f) => f.g === "godkjend").length ?? 0;
+  if (godkjende < 20) feil.push(`berre ${godkjende} godkjende brønnbåtar — brønnbåtregisteret har truleg feila`);
+  const soner = d.lokalitetar?.filter((l) => l.so?.length).length ?? 0;
+  if (soner === 0) feil.push("ingen anlegg i sjukdomssone — WFS-en har truleg feila");
   const dagar = (Date.now() - Date.parse(d.bygd)) / 36e5;
   if (dagar > 6) feil.push(`datasettet er ${Math.round(dagar)} timar gammalt`);
 }

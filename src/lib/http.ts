@@ -12,10 +12,13 @@ export type FetchOptions = {
   body?: string;
   /** Rå tekst i staden for JSON. Nokre feilsvar frå BarentsWatch er text/plain. */
   raw?: boolean;
+  /** Tak på eitt enkelt kall. Standard tre minutt. */
+  timeoutMs?: number;
 };
 
 const MIN_MS_MELLOM_KALL = 250; // maks 4 kall/sek, sekvensielt
 const MAKS_FORSOK = 5;
+const MAKS_VENT_MS = 60_000; // aldri sov meir enn eitt minutt mellom forsøk
 
 let sisteKall = 0;
 
@@ -53,18 +56,26 @@ export async function hent(
   for (let forsok = 1; forsok <= MAKS_FORSOK; forsok++) {
     await strup();
     try {
+      // Utan timeout kan eit kall henge til jobben blir drepen.
       const svar = await fetch(url, {
         method: opt.method ?? "GET",
         headers: opt.headers ?? {},
+        signal: AbortSignal.timeout(opt.timeoutMs ?? 180_000),
         ...(opt.body !== undefined ? { body: opt.body } : {}),
       });
       const tekst = await svar.text();
 
       if (svar.status === 429 || svar.status >= 500) {
-        const retryAfter = svar.headers.get("Retry-After");
-        const ventMs = retryAfter
-          ? Number(retryAfter) * 1000
-          : Math.min(30_000, 2 ** forsok * 500);
+        // Retry-After kan vere sekund ELLER ein HTTP-dato, og ein server kan
+        // oppgi timevis. Utan tak kunne den daglege jobben sove til han blei
+        // drepen av tidsgrensa.
+        const raa = svar.headers.get("Retry-After");
+        const fraaHeader = raa === null ? NaN
+          : /^\d+$/.test(raa.trim()) ? Number(raa) * 1000
+          : Date.parse(raa) - Date.now();
+        const ventMs = Number.isFinite(fraaHeader) && fraaHeader > 0
+          ? Math.min(MAKS_VENT_MS, fraaHeader)
+          : Math.min(MAKS_VENT_MS, 2 ** forsok * 500);
         if (forsok < MAKS_FORSOK) {
           console.error(
             `  [retry ${forsok}/${MAKS_FORSOK}] ${svar.status} — ventar ${ventMs} ms`,

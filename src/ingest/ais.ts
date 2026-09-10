@@ -176,13 +176,23 @@ export function finnVedAnlegg(
 
   for (const p of posisjonar) {
     if (p.fart !== null && p.fart > maksFart) continue;
+    // Ligg fartøyet mellom to anlegg, er det næraste det rette svaret —
+    // ikkje det første i lista, som berre er rekkjefølgja i registeret.
+    let beste: { a: (typeof anlegg)[number]; d: number } | null = null;
     for (const a of anlegg) {
       if (Math.abs(a.lat - p.lat) > grovGrad) continue;
       if (Math.abs(a.lon - p.lon) > grovGrad * 2.5) continue;
       const d = haversineM([p.lon, p.lat], [a.lon, a.lat]);
       if (d > radiusM) continue;
-      ut.push({ mmsi: p.mmsi, lokalitetsnr: a.nr, lokalitetsnamn: a.namn, avstandM: Math.round(d) });
-      break;
+      if (!beste || d < beste.d) beste = { a, d };
+    }
+    if (beste) {
+      ut.push({
+        mmsi: p.mmsi,
+        lokalitetsnr: beste.a.nr,
+        lokalitetsnamn: beste.a.namn,
+        avstandM: Math.round(beste.d),
+      });
     }
   }
   return ut;

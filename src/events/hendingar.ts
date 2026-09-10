@@ -124,6 +124,10 @@ export function finnLuseauke(
     const s = serie.slice(-3);
     const [a, b, d] = s as [typeof s[0], typeof s[0], typeof s[0]];
     if (d.aar !== sisteAar || d.uke !== sisteUke) continue;
+    // Tre MÅLINGAR er ikkje det same som tre veker. Under 4 °C er teljeplikta
+    // kvar 14. dag, og eit anlegg kan hoppe over veker. Rekn kor langt det
+    // faktisk spenner, så teksten ikkje lyg.
+    const spenn = (d.aar - a.aar) * 52 + (d.uke - a.uke) + 1;
 
     const g = lusegrense(l.fylkenr, d.aar, d.uke);
     if (!g.gyldig) continue;
@@ -147,8 +151,9 @@ export function finnLuseauke(
       type: "luseauke",
       tittel: `${l.namn} har stigande lusetal`,
       detalj:
-        `${a.lus.toFixed(2)} → ${b.lus.toFixed(2)} → ${d.lus.toFixed(2)} over tre veker. ` +
-        `Grensa er ${g.verdi}. Framleis under, men på veg opp.`,
+        `${a.lus.toFixed(2)} → ${b.lus.toFixed(2)} → ${d.lus.toFixed(2)} ` +
+        (spenn === 3 ? "over tre veker" : `over ${spenn} veker, tre teljingar`) +
+        `. Grensa er ${g.verdi}. Framleis under, men på veg opp.`,
       alvor: naerleik > 0.8 ? 2 : 1,
       relevans: {
         avlusing: { score: Math.round(naerleik * 70), why: "Tre veker med stigning endar som regel i behandling. Ta kontakt før dei må." },
@@ -347,6 +352,10 @@ export function finnSoknader(soknader: Soknad[], c: Ctx, opne: boolean): Hending
     if (s.netdata_depth_value) bitar.push(`notdjupn ${Math.round(s.netdata_depth_value / 100)} m`);
 
     const stor = (mtb ?? 0) >= 3000;
+    // Eit landbasert anlegg eller havbeite har verken not eller fortøying.
+    // Å love ein notleverandør at dette er ein kunde er å sende han feil veg.
+    const tekst = `${s.soeknadstype ?? ""} ${s.sitename ?? ""}`.toLowerCase();
+    const iSjo = !/landbasert|på land|havbeite|klekkeri|settefisk/.test(tekst);
     // RETURNED = sendt i retur til søkjaren. Det er ikkje ein aktiv søknad,
     // og skal ikkje lesast som «dei skal bygge no».
     const returnert = s.status_application === "RETURNED";
@@ -376,8 +385,12 @@ export function finnSoknader(soknader: Soknad[], c: Ctx, opne: boolean): Hending
         (s.netdata_typedescription ? `Not: ${s.netdata_typedescription.slice(0, 120)}` : ""),
       alvor: returnert ? 1 : stor ? 3 : opne ? 2 : 1,
       relevans: {
-        not: { score: stor ? 90 : 60, why: "Ein søknad med oppgitt notdjupn og nottype er ei innkjøpsspesifikasjon i praksis." },
-        fortoying: { score: stor ? 85 : 55, why: "Ny lokalitet krev heilt nytt fortøyingsanlegg. Lang leveringstid." },
+        ...(iSjo
+          ? {
+              not: { score: stor ? 90 : 60, why: "Ein søknad med oppgitt notdjupn og nottype er ei innkjøpsspesifikasjon i praksis." },
+              fortoying: { score: stor ? 85 : 55, why: "Ny lokalitet krev heilt nytt fortøyingsanlegg. Lang leveringstid." },
+            }
+          : {}),
         for: { score: mtb ? Math.min(95, Math.round(mtb / 60)) : 40, why: "Planlagt fôrmengd står i søknaden. Det er kontraktstorleiken." },
         service: { score: 45, why: "Etablering krev montering, dykking og sertifisering." },
         bronnbat: { score: 30, why: "Nytt anlegg betyr nye smoltleveransar." },

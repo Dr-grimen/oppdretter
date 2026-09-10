@@ -260,16 +260,24 @@ const kartLok = lokalitetar
       ...(l.artar.length ? { ar: l.artar.slice(0, 2) } : {}),
       ...(soner.length ? { so: soner } : {}),
       ...(harHistorikk ? { hist: historikk } : {}),
+      // Lusegrensa er ikkje konstant gjennom vindauget: 0,2 i veke 16-21 sør og
+      // 21-26 nord. Ei kurve med éi grenselinje over åtte veker viser feil grense
+      // for delar av perioden. Difor grensa per veke.
+      ...(harHistorikk
+        ? { grh: veker.map((v) => lusegrense(l.fylkenr, v.aar, v.uke).verdi) }
+        : {}),
     };
   });
 
 // Forenkla PO-polygon som bakgrunn. Held annakvart punkt for å spare plass.
-function tynn(ringar: number[][][], hopp: number): number[][][] {
+/**
+ * Rundar polygonkoordinatane til tre desimalar (~100 m). Vi tynna dette
+ * hardare før — kvart fjerde punkt — men då låg 255 anlegg synleg utanfor sitt
+ * eige produksjonsområde. Full oppløysing kostar 4 kB og gir null slike.
+ */
+function rundPolygon(ringar: number[][][]): number[][][] {
   return ringar.map((r) =>
-    r.filter((_, i) => i % hopp === 0 || i === r.length - 1).map((p) => [
-      Math.round((p[0] ?? 0) * 1e3) / 1e3,
-      Math.round((p[1] ?? 0) * 1e3) / 1e3,
-    ]),
+    r.map((p) => [Math.round((p[0] ?? 0) * 1e3) / 1e3, Math.round((p[1] ?? 0) * 1e3) / 1e3]),
   );
 }
 const poRå = JSON.parse(gunzipSync(readFileSync(`${mappe}/produksjonsomrader.geojson.gz`)).toString()) as {
@@ -282,7 +290,7 @@ const poGeo = poRå.features.map((f) => {
     id: Number(f.properties["id"]),
     nm: String(f.properties["name"] ?? ""),
     st: String(f.properties["status"] ?? ""),
-    p: polys.map((p) => tynn(p, 4)),
+    p: polys.map(rundPolygon),
   };
 });
 

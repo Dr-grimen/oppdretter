@@ -838,6 +838,9 @@ input{font:inherit}
 @media(max-width:940px){.kartboks{height:60vh}}
 .kartboks svg{display:block;width:100%;height:100%;cursor:grab}
 .kartboks #lkart{position:absolute;inset:0;background:var(--hav)}
+.kartfeil{display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:center;
+  height:100%;padding:28px;text-align:center;color:var(--ink-2);font-size:14px;line-height:1.55;max-width:44ch;margin:0 auto}
+.kartfeil b{font-family:var(--display);font-size:16px;color:var(--ink)}
 .leaflet-container{background:var(--hav);font-family:var(--body);outline:none}
 .leaflet-tile-pane{filter:saturate(.95)}
 :root[data-theme="dark"] .leaflet-tile-pane,
@@ -1174,7 +1177,15 @@ function filtrert(){
     if(S.type!==null && !iGruppe(h.type,S.type)) return false;
     if(S.rolle==="lev" && S.seg!=="alle" && !(h.rel&&h.rel[S.seg])) return false;
     if(S.periode!==null && (h.dagar==null || h.dagar>S.periode)) return false;
-    if(naer && !(h.lokalitetsnr && naer[h.lokalitetsnr])) return false;
+    // Eit klyngevarsel gjeld eit heilt produksjonsområde og har ikkje
+    // lokalitetsnummer. Det er nettopp noko ein oppdrettar i området vil vite.
+    if(naer){
+      var mineOmraade = S.mine.map(function(n){return (LOK[n]||{}).po;});
+      var gjeldMeg = (h.lokalitetsnr && naer[h.lokalitetsnr]) ||
+        (h.lokalitetsnr==null && h.produksjonsomrade!=null &&
+         mineOmraade.indexOf(h.produksjonsomrade)>=0);
+      if(!gjeldMeg) return false;
+    }
     if(sok){
       var t=(h.tittel+" "+(h.selskap||"")+" "+h.lokalitetsnamn+" "+(h.fylke||"")).toLowerCase();
       if(t.indexOf(sok)<0) return false;
@@ -1458,11 +1469,25 @@ function status(l){
 var PKTFARGE={over:"--kritisk",naer:"--varsel",ok:"--rolig",ingen:"--ink-3",utanfor:"--ink-3"};
 function css(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
 
+/* Leaflet kjem frå cdnjs. Er CDN-en nede eller blokkert, skal brukaren få
+   ei forklaring — ikkje ein tom grå boks han ikkje skjønar. */
+function kartMangler(){
+  var b=document.getElementById("lkart");
+  if(b) b.innerHTML='<div class="kartfeil">'+
+    '<b>Kartet lastar ikkje</b>'+
+    'Kartmotoren kjem frå eit eksternt bibliotek som ikkje er tilgjengeleg no. '+
+    'Alt anna i appen verkar — prøv <b>Anlegg</b>-fana for same informasjon som liste.'+
+    '</div>';
+}
+
 function byggKart(){
   kart = L.map("lkart", {
     center: NOREG, zoom: 5, minZoom: 4, maxZoom: 18,
     zoomControl: false, attributionControl: false,
-    worldCopyJump: false
+    worldCopyJump: false,
+    // Utan grense kunne du panorere ut i Atlanterhavet utan veg tilbake.
+    maxBounds: L.latLngBounds([54.0, -8.0], [82.0, 42.0]),
+    maxBoundsViscosity: 0.7
     // SVG-renderar (standard): kvart punkt blir ein DOM-node, som toler
     // 1 377 anlegg fint og alltid får rett storleik. Canvas-renderaren
     // fekk feil lerretstorleik når containeren blei målt for tidleg.
@@ -1589,6 +1614,7 @@ function oppdaterLagval(){
 var kartObs=null;
 function kopleKart(medBaat){
   var boks=document.getElementById("lkart");
+  if(typeof L==="undefined"){ kartMangler(); return; }
   // teiknKart() og teiknBaat() byter ut heile #innhald, så DIV-en Leaflet var
   // bunden til blir kasta ut og erstatta av ein ny, tom ein. Utan denne testen
   // held Leaflet fram med å teikne på den utkasta noden, og kartet er ein tom
@@ -1636,6 +1662,18 @@ function teiknKart(){
   kopleKart(false); teiknPanel();
 }
 
+/* Posisjonane er eit frose bilete frå nattas bygg. Det må stå. */
+function aisAlder(){
+  if(!D.aisTid) return "Ingen fartøysdata.";
+  var t=Date.parse(D.aisTid.length>19?D.aisTid:D.aisTid+"Z");
+  if(!t) return "Ingen fartøysdata.";
+  var timar=(Date.now()-t)/36e5;
+  var naar = timar<1 ? "for under ein time sidan"
+           : timar<24 ? "for "+Math.round(timar)+" timar sidan"
+           : "for "+Math.round(timar/24)+" døgn sidan";
+  return "Posisjonane er henta "+naar+". Båtane har flytta seg sidan.";
+}
+
 /* ── båtfane ── */
 function synlegeBaatar(){
   var sok=S.sok.toLowerCase().trim();
@@ -1654,7 +1692,7 @@ function teiknBaat(){
     '<div class="kartskal">'+kartSkal(true)+
     '<div class="panel" id="panel">'+
       '<h3>Båtar akkurat no</h3>'+
-      '<p class="selskap">'+(D.aisTid?("Siste melding "+D.aisTid.slice(11,16)+" UTC, "+D.aisTid.slice(0,10)):"")+'</p>'+
+      '<p class="selskap">'+aisAlder()+'</p>'+
       '<div class="chips" style="margin-bottom:12px">'+valg.map(function(v){
         return '<button data-bf="'+v[0]+'" aria-pressed="'+(S.baatfilter===v[0])+'">'+v[1]+'</button>';
       }).join("")+'</div>'+
@@ -1809,7 +1847,9 @@ function fjordBolk(l){
       return '<button data-ring="'+v+'" aria-pressed="'+(S.ring===v)+'">'+v+' km</button>';
     }).join("")+'</div>'+
     '<div class="press '+klasse+'"><b>'+(snitt!=null?snitt.toFixed(2):"—")+'</b>'+
-      '<span>Snitt vaksne holus hos naboane.<br>'+esc(tekst)+'</span></div>'+
+      '<span>'+(medLus.length
+        ? 'Snitt av '+medLus.length+' naboar med luserapport.'
+        : 'Ingen naboar har rapportert.')+'<br>'+esc(tekst)+'</span></div>'+
     '<div class="fj-rader">'+
       '<div><b>'+nb.length+'</b><span>anlegg innan '+r+' km</span></div>'+
       '<div><b>'+medFisk.length+'</b><span>har fisk i sjøen</span></div>'+
@@ -1968,18 +2008,27 @@ function teiknPanel(){
 
   var hist=l.hist||[], tal=hist.filter(function(v){return v!=null;});
   if(tal.length>1){
-    var maks=Math.max.apply(null,tal.concat([l.gr]))*1.2, W=260,H=56, steg=W/(hist.length-1), d="",open=false;
+    var maks=Math.max.apply(null,tal.concat(l.grh||[l.gr]))*1.2, W=260,H=56, steg=W/(hist.length-1), d="",open=false;
     hist.forEach(function(v,i){ if(v==null){open=false;return;}
       var x=i*steg,y=H-(v/maks)*H; d+=(open?"L":"M")+x.toFixed(1)+" "+y.toFixed(1); open=true; });
-    var gy=H-(l.gr/maks)*H;
+    // Grensa endrar seg gjennom vindauget (0,2 i vårvekene). Teikn ho som ei
+    // trapp, elles viser kurva feil grense for delar av perioden.
+    var grh=l.grh||hist.map(function(){return l.gr;});
+    var grLinje="";
+    for(var gi=0; gi<grh.length; gi++){
+      var gyy=H-(grh[gi]/maks)*H;
+      var x0=Math.max(0,(gi-0.5)*steg), x1=Math.min(W,(gi+0.5)*steg);
+      grLinje+=(gi===0?"M":"L")+x0.toFixed(1)+" "+gyy.toFixed(1)+"L"+x1.toFixed(1)+" "+gyy.toFixed(1);
+    }
+    var grEndrar=grh.some(function(x){return x!==grh[0];});
     h+='<div class="trend"><h4>Lusetal siste '+hist.length+' veker</h4>'+
       '<svg viewBox="0 0 '+W+' '+(H+4)+'" preserveAspectRatio="none">'+
-      '<line x1="0" y1="'+gy.toFixed(1)+'" x2="'+W+'" y2="'+gy.toFixed(1)+
-        '" stroke="var(--kritisk)" stroke-width="1" stroke-dasharray="4 3"/>'+
+      '<path d="'+grLinje+'" fill="none" stroke="var(--kritisk)" stroke-width="1" stroke-dasharray="4 3"/>'+
       '<path d="'+d+'" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>'+
       hist.map(function(v,i){ return v==null?"":'<circle cx="'+(i*steg).toFixed(1)+'" cy="'+
         (H-(v/maks)*H).toFixed(1)+'" r="2.4" fill="var(--accent)"/>'; }).join("")+
-      '</svg><p class="hint" style="font-size:11.5px;margin-top:5px">Raud stipla linje er lusegrensa på '+l.gr+'.</p></div>';
+      '</svg><p class="hint" style="font-size:11.5px;margin-top:5px">Raud stipla linje er lusegrensa. '+
+      (grEndrar?'Ho er strengare i vårvekene, difor trappa.':'Her er ho '+l.gr+' heile perioden.')+'</p></div>';
   }
   h+=fjordBolk(l);
   h+='<button class="folg'+(erMitt(l.n)?" av":"")+'" id="folg">'+
