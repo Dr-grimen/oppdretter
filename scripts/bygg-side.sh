@@ -31,7 +31,7 @@ full = (
     '<meta name="description" content="Varsel for norsk havbruk: lakselus, sjukdom, '
     'sjukdomssoner og brønnbåtar frå opne norske kjelder.">\n'
     '<meta name="color-scheme" content="light dark">\n'
-    '<meta name="theme-color" content="#0C6156">\n'
+    '<meta name="theme-color" content="#12447E">\n'
     '<link rel="icon" href="data:image/svg+xml,'
     '%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E'
     '%3Ctext y=%2226%22 font-size=%2226%22%3E%F0%9F%90%9F%3C/text%3E%3C/svg%3E">\n'

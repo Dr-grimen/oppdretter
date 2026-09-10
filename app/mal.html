@@ -648,16 +648,16 @@ svg.leaflet-image-layer.leaflet-interactive path {
 /* ── vår eigen stil ── */
 
 :root{
-  --ground:#EEF2F1; --surface:#FFFFFF; --surface-2:#F6F9F8;
-  --ink:#0F1E1D; --ink-2:#4C5F5D; --ink-3:#7A8A88;
-  --line:#D6DEDC; --line-2:#E8EDEC;
-  --accent:#0C6156; --accent-soft:#DCEBE8;
-  --kritisk:#A32A1E; --kritisk-soft:#F8E5E2;
-  --varsel:#8C5E04; --varsel-soft:#F9EFDD;
-  --rolig:#356543; --rolig-soft:#E4EEE6;
-  --po-gron:#3A7A4C; --po-gul:#BE9312; --po-rod:#A32A1E;
-  --hav:#DDE6E5; --baat:#2C5C86; --baat-soft:#DEE8F1;
-  --skug:0 1px 2px rgba(15,30,29,.05), 0 4px 14px rgba(15,30,29,.05);
+  --ground:#F2F5FA; --surface:#FFFFFF; --surface-2:#F5F8FC;
+  --ink:#0E2340; --ink-2:#3C5878; --ink-3:#7189A6;
+  --line:#D5DFEC; --line-2:#E7EDF6;
+  --accent:#12447E; --accent-soft:#E2EBF7;
+  --kritisk:#A62220; --kritisk-soft:#FBE6E4;
+  --varsel:#8A5A06; --varsel-soft:#FAEFDC;
+  --rolig:#1F6046; --rolig-soft:#E1EFE8;
+  --po-gron:#2A7355; --po-gul:#B08A12; --po-rod:#A62220;
+  --hav:#E4EBF4; --baat:#12447E; --baat-soft:#E2EBF7;
+  --skug:0 1px 2px rgba(14,35,64,.06), 0 4px 14px rgba(14,35,64,.06);
   --r:8px;
   --topp:118px;   /* høgda på topp + rollelinje, til sticky */
   --botn-bar:0px;
@@ -667,29 +667,29 @@ svg.leaflet-image-layer.leaflet-interactive path {
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --ground:#0A1413; --surface:#101E1C; --surface-2:#16241F;
-    --ink:#E6EDEB; --ink-2:#9DAFAC; --ink-3:#6F817F;
-    --line:#233330; --line-2:#1A2926;
-    --accent:#48BCAB; --accent-soft:#16332E;
-    --kritisk:#E8776A; --kritisk-soft:#37201C;
-    --varsel:#D9A431; --varsel-soft:#332818;
-    --rolig:#6FB183; --rolig-soft:#1A2E21;
-    --po-gron:#5C9E6D; --po-gul:#C9A43A; --po-rod:#C4584A;
-    --hav:#0E1A18; --baat:#6FA8D8; --baat-soft:#16252F;
-    --skug:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+    --ground:#08131F; --surface:#0E1F33; --surface-2:#14273D;
+    --ink:#E7EEF8; --ink-2:#9DB3CC; --ink-3:#6E869F;
+    --line:#22384F; --line-2:#1A2C40;
+    --accent:#6BA6E8; --accent-soft:#152B44;
+    --kritisk:#EB7F72; --kritisk-soft:#361E1D;
+    --varsel:#DBA83A; --varsel-soft:#332818;
+    --rolig:#6FBB94; --rolig-soft:#152E23;
+    --po-gron:#5FA383; --po-gul:#C6A03C; --po-rod:#C55A4E;
+    --hav:#0B1A29; --baat:#6BA6E8; --baat-soft:#152B44;
+    --skug:0 1px 2px rgba(0,0,0,.35), 0 4px 14px rgba(0,0,0,.3);
   }
 }
 :root[data-theme="dark"]{
-  --ground:#0A1413; --surface:#101E1C; --surface-2:#16241F;
-  --ink:#E6EDEB; --ink-2:#9DAFAC; --ink-3:#6F817F;
-  --line:#233330; --line-2:#1A2926;
-  --accent:#48BCAB; --accent-soft:#16332E;
-  --kritisk:#E8776A; --kritisk-soft:#37201C;
-  --varsel:#D9A431; --varsel-soft:#332818;
-  --rolig:#6FB183; --rolig-soft:#1A2E21;
-  --po-gron:#5C9E6D; --po-gul:#C9A43A; --po-rod:#C4584A;
-  --hav:#0E1A18; --baat:#6FA8D8; --baat-soft:#16252F;
-  --skug:0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+    --ground:#08131F; --surface:#0E1F33; --surface-2:#14273D;
+  --ink:#E7EEF8; --ink-2:#9DB3CC; --ink-3:#6E869F;
+  --line:#22384F; --line-2:#1A2C40;
+  --accent:#6BA6E8; --accent-soft:#152B44;
+  --kritisk:#EB7F72; --kritisk-soft:#361E1D;
+  --varsel:#DBA83A; --varsel-soft:#332818;
+  --rolig:#6FBB94; --rolig-soft:#152E23;
+  --po-gron:#5FA383; --po-gul:#C6A03C; --po-rod:#C55A4E;
+  --hav:#0B1A29; --baat:#6BA6E8; --baat-soft:#152B44;
+  --skug:0 1px 2px rgba(0,0,0,.35), 0 4px 14px rgba(0,0,0,.3);
 }
 *{box-sizing:border-box}
 body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
@@ -716,7 +716,7 @@ input{font:inherit}
 .rolle-val button{padding:5px 14px;border-radius:20px;font-size:13.5px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface)}
 .rolle-val button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
 :root[data-theme="dark"] .rolle-val button[aria-pressed="true"],
-:root:not([data-theme="light"]) .rolle-val button[aria-pressed="true"]{color:#08201C}
+:root:not([data-theme="light"]) .rolle-val button[aria-pressed="true"]{color:#08131F}
 .sok{margin-left:auto;display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:5px 13px;min-width:min(300px,100%)}
 .sok input{border:0;background:none;outline:none;flex:1;color:var(--ink);font-size:13.5px;min-width:0}
 .sok input::placeholder{color:var(--ink-3)}
@@ -750,6 +750,18 @@ input{font:inherit}
 .chips button[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
 
 /* mine anlegg */
+.leggtil{margin-bottom:8px}
+.leggtil input{width:100%;padding:9px 11px;border-radius:7px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);font-size:14px;font-family:var(--body);outline:none}
+.leggtil input:focus{border-color:var(--accent)}
+.treff{display:flex;flex-direction:column;gap:2px;margin-top:5px}
+.treff button{text-align:left;padding:7px 9px;border-radius:6px;border:1px solid var(--line-2);
+  background:var(--surface);display:flex;flex-direction:column;line-height:1.25}
+.treff button:hover{border-color:var(--accent);background:var(--accent-soft)}
+.treff b{font-size:13.5px;font-weight:600}
+.treff em{font-style:normal;font-size:11.5px;color:var(--ink-3)}
+.ingentreff{margin:5px 0 0;font-size:12.5px;color:var(--ink-3)}
+@media(max-width:720px){.leggtil input{padding:12px 13px;font-size:16px}.treff button{padding:11px 12px}}
 .mine{display:flex;flex-direction:column;gap:3px}
 .mine .m{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 9px;border-radius:6px;background:var(--surface);border:1px solid var(--line-2);font-size:13px}
 .mine .m b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -813,6 +825,8 @@ input{font:inherit}
 .arad .lusetal.over{color:var(--kritisk)} .arad .lusetal.naer{color:var(--varsel)}
 .arad .lusetal.ingen{color:var(--ink-3);font-weight:400;font-size:12px}
 @media(max-width:620px){.arad{grid-template-columns:30px minmax(0,1fr) auto;gap:8px;padding:9px 11px}.arad .fisk{display:none}}
+.rolegt{padding:12px 15px;background:var(--accent-soft);color:var(--accent);
+  border-radius:var(--r);font-size:14px;line-height:1.5;margin-bottom:4px}
 .tom{padding:38px 22px;text-align:center;color:var(--ink-3);background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);line-height:1.55}
 .meir{align-self:center;margin-top:8px;padding:8px 20px;border:1px solid var(--line);border-radius:20px;font-size:13.5px;color:var(--ink-2);background:var(--surface)}
 .meir:hover{border-color:var(--accent);color:var(--accent)}
@@ -825,7 +839,7 @@ input{font:inherit}
 .kartboks svg{display:block;width:100%;height:100%;cursor:grab}
 .kartboks #lkart{position:absolute;inset:0;background:var(--hav)}
 .leaflet-container{background:var(--hav);font-family:var(--body);outline:none}
-.leaflet-tile-pane{filter:saturate(.92)}
+.leaflet-tile-pane{filter:saturate(.95)}
 :root[data-theme="dark"] .leaflet-tile-pane,
 :root:not([data-theme="light"]) .leaflet-tile-pane{filter:saturate(.75) brightness(.72) contrast(1.05)}
 .lagval{position:absolute;left:12px;top:12px;z-index:500;display:flex;gap:3px;
@@ -913,7 +927,7 @@ input{font:inherit}
 .ringar button{flex:1;padding:5px 0;border-radius:5px;font-size:12.5px;border:1px solid var(--line);color:var(--ink-2);font-family:var(--mono)}
 .ringar button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
 :root[data-theme="dark"] .ringar button[aria-pressed="true"],
-:root:not([data-theme="light"]) .ringar button[aria-pressed="true"]{color:#08201C}
+:root:not([data-theme="light"]) .ringar button[aria-pressed="true"]{color:#08131F}
 .press{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:7px;margin-bottom:10px}
 .press b{font-family:var(--mono);font-size:21px;font-weight:600;line-height:1}
 .press span{font-size:12.5px;line-height:1.35}
@@ -974,7 +988,7 @@ input{font:inherit}
     padding:14px;border-radius:9px;background:var(--accent);color:#fff;
     font-family:var(--display);font-weight:600;font-size:15.5px}
   :root[data-theme="dark"] .ferdig,
-  :root:not([data-theme="light"]) .ferdig{color:#08201C}
+  :root:not([data-theme="light"]) .ferdig{color:#08131F}
 
   .skuff-bak{display:block;position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.35);
     opacity:0;pointer-events:none;transition:opacity .22s}
@@ -1074,6 +1088,9 @@ var SEGNAMN = {alle:"Alt", not:"Not og utstyr", fortoying:"Fortøying",
 var TYPENAMN = {over_grensa:"Over lusegrensa", luseauke:"Lusetal stig", behandling:"Avlusa",
   behandlingsklynge:"Mange avlusar", sjukdom_paavist:"Sjukdom påvist",
   sjukdom_avslutta:"Sjukdom over", ny_soknad:"Ny søknad", soknad_avgjort:"Søknad avgjort"};
+/* 10 km er for tett i ein fjord: rundt Storevikholmen har berre 2 av 11
+   naboar luserapport i det heile. 20 km gir eit ærleg bilete. */
+var NABO_KM = 20;
 var GRUPPER = [
   {k:"lus",      n:"Lus",       t:["over_grensa","luseauke"]},
   {k:"avlusing", n:"Avlusing",  t:["behandling","behandlingsklynge"]},
@@ -1090,11 +1107,13 @@ var FARTOY = D.fartoy || [];
 
 var S_lag="sjokart";
 var S = {fane:"feed", rolle:"drift", seg:"alle", po:null, type:null,
-         vis:30, valt:null, valtBaat:null, sok:"", mine:[], baatfilter:"bb", ring:20, periode:null, skuff:false};
+         vis:30, valt:null, valtBaat:null, sok:"", mine:[], baatfilter:"bb", ring:20, periode:null, skuff:false, leggtil:""};
 
 /* mine anlegg — berre i denne nettlesaren */
 try{ var lagra=localStorage.getItem("oppdretter.mine"); if(lagra) S.mine=JSON.parse(lagra); }catch(e){}
+try{ var po0=localStorage.getItem("oppdretter.po"); if(po0!==null&&po0!=="") S.po=+po0; }catch(e){}
 function lagreMine(){ try{ localStorage.setItem("oppdretter.mine", JSON.stringify(S.mine)); }catch(e){} }
+function lagreOmrade(){ try{ localStorage.setItem("oppdretter.po", S.po===null?"":String(S.po)); }catch(e){} }
 function erMitt(n){ return S.mine.indexOf(n)>=0; }
 
 function esc(t){ return String(t==null?"":t).replace(/[&<>"]/g,function(c){
@@ -1118,7 +1137,7 @@ function naboar(n,radius){
 }
 function mineOgNaboar(){
   var sett={};
-  S.mine.forEach(function(n){ sett[n]=1; naboar(n,10).forEach(function(x){sett[x.l.n]=2;}); });
+  S.mine.forEach(function(n){ sett[n]=1; naboar(n,NABO_KM).forEach(function(x){sett[x.l.n]=2;}); });
   return sett;
 }
 
@@ -1208,12 +1227,45 @@ function opneSkuff(pa){
 }
 
 /* ── sidepanel ── */
+/* Treffliste når du skriv namnet på anlegget ditt. Maks åtte, så det ikkje
+   blir ei ny liste å leite i. */
+function teiknTreff(){
+  var el=document.getElementById("leggtiltreff"); if(!el) return;
+  var q=S.leggtil.toLowerCase().trim();
+  if(q.length<2){ el.innerHTML=""; return; }
+  var t=D.lokalitetar.filter(function(l){
+    return !erMitt(l.n) && ((l.nm||"")+" "+(l.s||"")).toLowerCase().indexOf(q)>=0;
+  }).slice(0,8);
+  if(!t.length){ el.innerHTML='<p class="ingentreff">Fann ingen anlegg som heiter det.</p>'; return; }
+  el.innerHTML=t.map(function(l){
+    return '<button data-legg="'+l.n+'"><b>'+esc(l.nm)+'</b>'+
+      '<em>'+esc(poTekst(l.po)||"")+(l.s?" · "+esc(l.s.slice(0,22)):"")+'</em></button>';
+  }).join("");
+  el.querySelectorAll("[data-legg]").forEach(function(b){
+    b.onclick=function(){
+      var n=+b.dataset.legg;
+      if(!erMitt(n)) S.mine=S.mine.concat([n]);
+      var l=LOK[n];
+      // Set samtidig området, så feeden og kartet følgjer anlegget ditt.
+      if(l && l.po!=null && S.po===null) S.po=l.po;
+      lagreMine(); lagreOmrade();
+      S.leggtil=""; S.vis=30;
+      teiknRail(); teiknBotnfaner(); teikn();
+    };
+  });
+}
+
 function teiknRail(){
   var h="";
   if(S.fane!=="baat"){
   if(S.rolle==="drift"){
     h+='<div class="bolk"><h3>Anlegga mine</h3>'+
-      '<p class="forklar">Legg til anlegga du driv, så viser vi varsel for dei og for naboar innan 10 km.</p>';
+      '<p class="forklar">Skriv namnet på anlegget ditt, så følgjer vi det og naboane rundt.</p>'+
+      '<div class="leggtil">'+
+        '<input id="leggtilsok" type="search" placeholder="Skriv anleggsnamn…" autocomplete="off" '+
+          'value="'+esc(S.leggtil)+'" aria-label="Søk etter anlegget ditt">'+
+        '<div id="leggtiltreff" class="treff"></div>'+
+      '</div>';
     if(S.mine.length){
       h+='<div class="mine">'+S.mine.map(function(n){
         var l=LOK[n];
@@ -1262,6 +1314,11 @@ function teiknRail(){
   document.getElementById("rail").innerHTML=h;
   var fk=document.getElementById("ferdigknapp");
   if(fk) fk.onclick=function(){ opneSkuff(false); };
+  var lt=document.getElementById("leggtilsok");
+  if(lt){
+    lt.oninput=function(e){ S.leggtil=e.target.value; teiknTreff(); };
+    teiknTreff();
+  }
 }
 
 /* Kva filtrerer akkurat no? Ein tom skjerm skal aldri vere eit mysterium. */
@@ -1284,7 +1341,7 @@ function filterLinje(){
 }
 function fjernFilter(k){
   if(k==="sok"||k==="alt"){ S.sok=""; var i=document.getElementById("sok"); if(i) i.value=""; }
-  if(k==="po"||k==="alt") S.po=null;
+  if(k==="po"||k==="alt"){ S.po=null; lagreOmrade(); }
   if(k==="type"||k==="alt") S.type=null;
   if(k==="periode"||k==="alt") S.periode=null;
   if(k==="seg"||k==="alt") S.seg="alle";
@@ -1292,11 +1349,59 @@ function fjernFilter(k){
   S.vis=30; teiknRail(); teiknBotnfaner(); teikn();
 }
 
+/* Eit varselkort. Brukt både i den vanlege feeden og i område-visinga. */
+function kortHtml(e){
+  var p=poeng(e), r=(S.rolle==="lev"&&S.seg!=="alle")?relFor(e,S.seg):null;
+  var mitt=e.lokalitetsnr&&erMitt(e.lokalitetsnr);
+  var meta=[];
+  if(e.produksjonsomrade!=null) meta.push(esc(poTekst(e.produksjonsomrade)));
+  if(e.selskap) meta.push(esc(e.selskap));
+  meta.push('<span title="'+esc(e.dato)+'">'+esc(alderTekst(e.dagar))+'</span>');
+  return '<article class="kort a'+e.alvor+(mitt?" mitt":"")+(e.fersk!=null&&e.fersk<0.6?" gammal":"")+'">'+
+    '<div class="kort-hovud">'+
+      (mitt?'<span class="mitt-merke">Ditt anlegg</span>':'')+
+      '<span class="merkelapp m-a'+e.alvor+'">'+esc(TYPENAMN[e.type]||e.type)+'</span>'+
+      '<h3>'+esc(e.tittel)+'</h3></div>'+
+    '<p class="detalj">'+esc(e.detalj)+'</p>'+
+    (r?'<div class="kvifor"><b>Kvifor dette er verdt ein telefon</b>'+esc(r.why)+'</div>':'')+
+    (S.rolle==="lev"?'<div class="passar">Passar deg <span class="bar"><i style="width:'+p+'%"></i></span> '+p+' av 100</div>':'')+
+    '<div class="meta">'+meta.map(function(m){return m.indexOf("<span")===0?m:'<span>'+m+'</span>';}).join("")+'</div>'+
+  '</article>';
+}
+
 /* ── feed ── */
 function teiknFeed(){
-  var liste=filtrert(), synleg=liste.slice(0,S.vis);
+  var liste=filtrert(), synleg=liste.slice(0,S.vis), fallback=false;
+  // Har du sett anlegget ditt og det ikkje har skjedd noko der, er tom skjerm
+  // eit dårleg svar. Vis heller området rundt, og sei at det er det du ser.
+  if(!liste.length && S.rolle==="drift" && S.mine.length && !S.sok.trim()){
+    var utan=D.hendingar.filter(function(h){
+      if(S.po!==null && h.produksjonsomrade!==S.po) return false;
+      if(S.type!==null && !iGruppe(h.type,S.type)) return false;
+      if(S.periode!==null && (h.dagar==null || h.dagar>S.periode)) return false;
+      return true;
+    }).sort(function(a,b){
+      var va=(a.drift||0)*(a.fersk!=null?a.fersk:1), vb=(b.drift||0)*(b.fersk!=null?b.fersk:1);
+      return vb!==va ? vb-va : (a.dato<b.dato?1:-1);
+    });
+    if(utan.length){ liste=utan; synleg=liste.slice(0,S.vis); fallback=true; }
+  }
+  if(fallback){
+    var namn=S.mine.map(function(n){return (LOK[n]||{}).nm||n;}).join(", ");
+    var h0='<div class="feed-topp"><h2>'+liste.length+' varsel</h2></div>'+
+      '<div class="rolegt">Det har ikkje skjedd noko på '+esc(namn)+
+      ' eller naboane innan '+NABO_KM+' km denne veka. Her er resten av '+
+      (S.po!==null?esc(PONAMN[S.po]||("produksjonsområde "+S.po)):"landet")+' i staden.</div>';
+    document.getElementById("innhald").innerHTML='<div class="feed">'+h0+
+      synleg.map(kortHtml).join("")+
+      (liste.length>S.vis?'<button class="meir" id="meir">Vis fleire ('+(liste.length-S.vis)+' att)</button>':'')+
+      '</div>';
+    var mm=document.getElementById("meir"); if(mm) mm.onclick=function(){S.vis+=30;teiknFeed();};
+    return;
+  }
+
   var innl = S.rolle==="drift"
-    ? (S.mine.length?"Anlegga dine og naboar innan 10 km, nyaste først."
+    ? (S.mine.length?"Anlegga dine og naboar innan "+NABO_KM+" km."
                     :"Alt som har skjedd, nyaste først. Legg til anlegga dine for å slippe støyen.")
     : (S.seg==="alle"?"Alle varsel, sortert etter kor mykje dei betyr for nokon."
                      :"Sortert etter kva som betyr mest når du leverer "+SEGNAMN[S.seg].toLowerCase()+".");
@@ -1309,24 +1414,7 @@ function teiknFeed(){
         '.<br><button class="meir" data-fjernfilter="alt" style="margin-top:12px">Vis alt</button>':'')+
       '</div>';
   } else {
-    h+=synleg.map(function(e){
-      var p=poeng(e), r=(S.rolle==="lev"&&S.seg!=="alle")?relFor(e,S.seg):null;
-      var mitt=e.lokalitetsnr&&erMitt(e.lokalitetsnr);
-      var meta=[];
-      if(e.produksjonsomrade!=null) meta.push(poTekst(e.produksjonsomrade));
-      if(e.selskap) meta.push(esc(e.selskap));
-      meta.push('<span title="'+e.dato+'">'+esc(alderTekst(e.dagar))+'</span>');
-      return '<article class="kort a'+e.alvor+(mitt?" mitt":"")+(e.fersk!=null&&e.fersk<0.6?" gammal":"")+'">'+
-        '<div class="kort-hovud">'+
-          (mitt?'<span class="mitt-merke">Ditt anlegg</span>':'')+
-          '<span class="merkelapp m-a'+e.alvor+'">'+esc(TYPENAMN[e.type]||e.type)+'</span>'+
-          '<h3>'+esc(e.tittel)+'</h3></div>'+
-        '<p class="detalj">'+esc(e.detalj)+'</p>'+
-        (r?'<div class="kvifor"><b>Kvifor dette er verdt ein telefon</b>'+esc(r.why)+'</div>':'')+
-        (S.rolle==="lev"?'<div class="passar">Passar deg <span class="bar"><i style="width:'+p+'%"></i></span> '+p+' av 100</div>':'')+
-        '<div class="meta">'+meta.map(function(m){return m.indexOf("<span")===0?m:'<span>'+m+'</span>';}).join("")+'</div>'+
-      '</article>';
-    }).join("");
+    h+=synleg.map(kortHtml).join("");
     if(liste.length>S.vis) h+='<button class="meir" id="meir">Vis fleire ('+(liste.length-S.vis)+' att)</button>';
   }
   document.getElementById("innhald").innerHTML='<div class="feed">'+h+'</div>';
@@ -1940,6 +2028,7 @@ var tid=null;
 document.addEventListener("change",function(e){
   if(e.target.id==="povel"){
     S.po = e.target.value===""?null:+e.target.value;
+    lagreOmrade();
     S.vis=30; teiknRail(); teiknBotnfaner(); teikn();
   }
 });
