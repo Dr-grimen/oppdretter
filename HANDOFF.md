@@ -95,6 +95,24 @@ Alt står med kjelde i `docs/API-FUNN.md`, `docs/API-FUNN-DEL2.md`, `docs/UTAN-K
 
 ## Planen, i rekkjefølgje
 
+### 0. Kartet — Sondre sa «fiks kartet, den er dårleg». IKKJE gjort.
+
+Eg såg på det på mobil (390 px) rett før sesjonen slutta. Det som er gale:
+
+- **Ingen anleggsprikkar synlege** ved standardzoom (heile Noreg). Prikkane er for
+  små, og 1 377 av dei forsvinn i sjøkartet.
+- **Sjøkartet er uleseleg zooma ut** — djuptal og fyrsymbol over heile skjermen.
+  Bruk «Kart» (topo) eller «Enkelt» som standard, og byt til sjøkart først når
+  brukaren zoomar inn forbi ca. zoom 9.
+- **Zoom-knappane blir dekte**: «+» er gøymd bak lagvalet øvst til høgre.
+- **Teiknforklaringa blir kutta** nedst til venstre (berre «…efisk» synleg).
+- **Kartet opnar alltid på heile Noreg.** Har brukaren sett anlegget sitt
+  (`S.mine`), opne der på zoom 11 med naboane synlege. Har han sett område
+  (`S.po`), opne på det området.
+
+Test på 390 px med `resize_window` og `window.innerWidth`-sjekk — førehandsvisinga
+kan sitje fast på 980 px utan å seie frå.
+
 ### 1. Seks funn står att (halvdags arbeid)
 
 - **Retta luserapportar blir handterte tre ulike måtar.** Trendkurva, siste-veke-talet
