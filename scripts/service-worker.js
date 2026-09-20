@@ -50,6 +50,8 @@ async function navigation(request) {
   const timeout = setTimeout(() => controller.abort(), 7000);
   try {
     const response = await fetch(request, { cache: 'no-cache', signal: controller.signal });
+    // Once the server responds, let slow connections finish downloading the page.
+    clearTimeout(timeout);
     if (!response.ok) throw new Error('Page unavailable');
     const snapshot = response.clone();
     if (matchingDocument(snapshot, await snapshot.clone().text())) {
