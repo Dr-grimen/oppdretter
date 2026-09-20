@@ -27,7 +27,7 @@ if (d) {
   if (!Number.isFinite(alder) || alder < -0.1 || alder > 6) feil.push("ugyldig eller meir enn 6 timar gammalt byggtidspunkt");
   if (d.schemaVersjon !== 2 || !d.kjelder) feil.push("manglar dokumentert kjeldestatus");
   else {
-    for (const namn of ["lakselus", "ais", "register", "soner", "pdsoner", "skipsregister", "bronnbatregister", "biomasse", "sjukdom", "soknader", "rensefisk"]) {
+    for (const namn of ["lakselus", "ais", "register", "soner", "pdsoner", "bwSjukdom", "bwPd", "bwIla", "ila10km", "skipsregister", "bronnbatregister", "biomasse", "sjukdom", "soknader", "rensefisk"]) {
       const k = d.kjelder[namn];
       if (!k || !["ok", "delvis", "feila"].includes(k.status) || !Number.isFinite(Date.parse(k.henta))) {
         feil.push(`ugyldig kjeldestatus for ${namn}`);

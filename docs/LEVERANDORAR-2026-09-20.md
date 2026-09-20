@@ -1,0 +1,33 @@
+# Leverandørgrunnlag for «Min fjord»
+
+Kontrolldato: **20. september 2026**. Datafil: `app/leverandorar.json`.
+
+Utvalet har ni leverandørar og byggjer berre på eigne, offentlege selskapssider. Det er eit redaksjonelt utval, ikkje eit fullstendig register, ei rangering eller stadfesting av kundeforhold. Ingen leverandør er knytt til Storevikholmen eller eit anna bestemt oppdrettsanlegg. Ledig kapasitet, pris, faktisk oppdragsområde og responstid er ikkje kontrollerte.
+
+`dekning` er eit grovt søkjefilter. `Noreg` tyder dokumentert norsk marknad/kystdekning, ikkje garanti for alle tenester i alle fjordar. For stasjonstenester viser fylka kvar selskapet uttrykkeleg tilbyr tenesta. Kontoradresse åleine er ikkje brukt som leveringsområde. Vis alltid `dekningTekst` saman med leverandøren. Lokale treff må ikkje omtalast som «nærast», og dei har med vilje ingen koordinatar eller avstandstal.
+
+## Kontrollerte leverandørar
+
+| Leverandør | Tenestegrunnlag | Geografisk grunnlag og avgrensing |
+| --- | --- | --- |
+| **ScaleAQ** | [Forankringsproduksjon på Bømlo](https://scaleaq.no/aktuelt/2023/11/full-produksjon-pa-vart-forankringslager-pa-bomlo/) skildrar komplette forankringssystem og oppfølging av kundar på staden. [Teknologidagen i september 2026](https://scaleaq.no/event/teknologidag-bomlo-2026/) dokumenterer framleis aktivitet og servicekompetanse på Bømlo. | Avgrensa til **Vestland** i dette utvalet. Det byggjer på ei faktisk produksjons- og serviceverksemd, ikkje berre eit kontor. Selskapet har vidare internasjonal verksemd, men denne er ikkje omsett til automatisk landsdekking her. |
+| **Selstad** | [Akvakulturservice](https://selstad.no/service/akvakultur/) dokumenterer vask, bøting, impregnering, tørking og lagring av nøter, samt service på luseskjørt. | Same side namngir stasjonar i **Uskedalen, Solund, Måløy, Svolvær og Sørreisa**. Fylkesfilter: Vestland, Nordland og Troms. Oppdragsdekning utanfor stasjonane eller transportavtalar blir ikkje utleidde. |
+| **AKVA group · Egersund Net** | [Egersund Net](https://www.akvagroup.no/egersundnet/hjem/) dokumenterer notprodukt og notservice, og fortøyingsutstyr gjennom Egersund Trading i Austevoll. | Selskapet oppgir eit servicetilbod langs norskekysten og nemner **Austevoll**. [Servicestasjonane](https://www.akvagroup.no/egersundnet/servicestasjoner/) stadfestar kystdekninga. Ingen lovnad om lokal leveringstid. Fôringsutstyr er ikkje kategorisert som fiskefôr. |
+| **Frøy** | [Tenestesida](https://froygruppen.no/services/) dokumenterer brønnbåttransport, avlusing, notvask, dykking/ROV og fortøying. | Same side oppgir oppdrag **langs heile norskekysten**. Det er grunnlaget for `Noreg`; dagens fartøyplassering eller ledige kapasitet er ikkje brukt. |
+| **Abyss** | [Selskapets tenesteoversikt](https://www.abyss.no/) dokumenterer servicefartøy, fortøyingsarbeid, notvask, undervassarbeid og avlusing. | Same side oppgir operasjonar for oppdrettarar **langs heile kysten**. Dette er selskapet si oppgitte dekning, ikkje stadfesta oppmøte i den valde fjorden. |
+| **AQS** | [Tenesteoversikta](https://aqs.no/) dokumenterer service, dykking/ROV, fortøying og arbeid med nøter. [Avlusing og hjelpefartøy](https://aqs.no/services/avlusning-og-hjelpefartoy/) er grunnlag for avlusingskategorien; omtalen presiserer støttefartøy. | [Om AQS](https://aqs.no/om-oss/) oppgir arbeid langs kysten **frå Vestlandet til Finnmark**. Dette er omsett til kystfylka Vestland, Møre og Romsdal, Trøndelag, Nordland, Troms og Finnmark. Rogaland er ikkje lagt til fordi nøyaktig sørgrense er uklar. |
+| **Sjøprodukt** | [Tenestesida](https://sjoprodukt.no/tjenester/) dokumenterer avlusing med FLS/Thermolicer, fortøying, ROV, frakt/slep og beredskap. | Sida oppgir maritime operasjonar langs heile kysten og eksplisitt frakt/slep langs norskekysten. `dekningTekst` presiserer at geografien for den enkelte behandlinga må avklarast. Planlagd ROV-utviding i februar 2027 er ikkje framstilt som tilgjengeleg no. |
+| **Skretting Norge** | [Utgreiinga publisert i 2026](https://www.skretting.com/no/aapenhet-og-tillit/aapenhetsloven/redegjorelse-2026/) dokumenterer fôr til havbruk og landbasert oppdrett. | Utgreiinga seier uttrykkeleg at fôret blir produsert for verksemder **i Noreg**, og oppgir Stavanger, Averøy og Stokmarknes som produksjonsstader. Landsfilteret byggjer på marknaden, ikkje fabrikkadressene. Ingen opplysning om kundane ved dei viste anlegga. |
+| **BioMar Norge** | [BioMar Norge](https://www.biomar.com/no-no/om-oss/historien/biomar-norge) dokumenterer utvikling, produksjon og distribusjon av fiskefôr. | Same side seier uttrykkeleg at selskapet leverer til oppdrettarar **langs heile norskekysten**. Karmøy og Myre er produksjonsstader, ikkje grunnlag for å berekne nærleik til ein leveranse. |
+
+## Kandidatar som ikkje er tekne med
+
+- **Marinus Aquaservice:** Søkemotoren hadde eldre, offisielle sider med Vestland/Rogaland som arbeidsområde. Direkte henting av både hovuddomene og `www.marinus.no/kontakt` 20. september gav berre ei side under bygging. Den gamle søketeksten er difor ikkje behandla som nykontrollert leverandørinformasjon.
+- **Sølvtrans:** [Tenestene](https://www.solvtrans.no/services) er dokumenterte, men dei kontrollerte opne sidene gav ikkje eit tilstrekkeleg presist, oppdatert geografisk grunnlag for dette regionale utvalet. Ålesund-adressa er ikkje brukt til å konstruere dekning.
+- **Rostein:** [Tenestene](https://www.rostein.no/tjenester) er dokumenterte. Ei [melding om Ro Sunrise frå 2025](https://www.rostein.no/aktuelt/rostein-med-ny-bronnbat---ro-sunrise) omtaler Nord-Noreg, men dette er ikkje eit oppdatert dekningskart for alle rederiet sine tenester eller Vestland. Utelate inntil betre regionalt grunnlag ligg føre.
+- **Aquaservice AS:** [Produkt- og tenestesida](https://aquaservice.no/) dokumenterer HDPE- og vassbehandlingsprodukt. Ho gir ikkje tilstrekkeleg konkret områdeinformasjon til dette filteret. Må ikkje blandast saman med Marinus Aquaservice eller andre selskap med liknande namn.
+- **Mørenot:** [Dei opna kontaktsidene](https://www.morenot.com/no/kontakt-oss) gjeld i stor grad fiskeriverksemda. Fiskeridekning er ikkje overført til oppdrettstenester. Treng ny, konkret kontroll av rett havbrukseining og tenesteområde før innlegging.
+
+## Vedlikehald
+
+Oppdater kontrolldatoen først etter ny gjennomgang av kjeldene. Ein automatisk dagleg databygging skal ikkje endre denne datoen. Fjern eller avgrens leverandørar dersom tenestesider forsvinn, geografien endrar seg eller det ikkje lenger er mogleg å skilje kontorstad frå reelt tenestetilbod. Det er ikkje sendt førespurnader, opna kundekontoar eller inngått avtalar som del av kontrollen.

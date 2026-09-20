@@ -1,0 +1,101 @@
+[
+  {
+    "id": "scaleaq",
+    "namn": "ScaleAQ",
+    "kategoriar": ["fortoying", "utstyr", "service"],
+    "omtale": "Forankringssystem, oppdrettsutstyr og teknisk oppfølging. Dokumentert produksjon og kundestøtte på Bømlo.",
+    "dekning": ["Vestland"],
+    "dekningTekst": "Bømlo: forankringsproduksjon og lokal oppfølging er dokumentert. Utvalet her er avgrensa til Vestland; annan oppdragsdekning må avklarast.",
+    "url": "https://scaleaq.no/",
+    "kjeldeUrl": "https://scaleaq.no/aktuelt/2023/11/full-produksjon-pa-vart-forankringslager-pa-bomlo/",
+    "kontrollert": "2026-09-20"
+  },
+  {
+    "id": "selstad",
+    "namn": "Selstad",
+    "kategoriar": ["not", "service", "utstyr"],
+    "omtale": "Vask, reparasjon, impregnering og lagring av oppdrettsnøter og luseskjørt. Har notservice i Uskedalen i Sunnhordland.",
+    "dekning": ["Vestland", "Nordland", "Troms"],
+    "dekningTekst": "Dokumenterte servicestasjonar i Uskedalen, Solund, Måløy, Svolvær og Sørreisa. Transport og oppdrag ved andre stader må avtalast.",
+    "url": "https://selstad.no/service/akvakultur/",
+    "kjeldeUrl": "https://selstad.no/service/akvakultur/",
+    "kontrollert": "2026-09-20"
+  },
+  {
+    "id": "akva-group",
+    "namn": "AKVA group · Egersund Net",
+    "kategoriar": ["not", "service", "utstyr", "fortoying"],
+    "omtale": "Oppdrettsnøter, notservice og tilhøyrande utstyr. Egersund Trading i Austevoll leverer mellom anna fortøyingsutstyr.",
+    "dekning": ["Noreg"],
+    "dekningTekst": "Oppgir servicetilbod langs norskekysten, med mellom anna notservice i Austevoll. Konkret teneste og leveringstid må avklarast.",
+    "url": "https://www.akvagroup.no/egersundnet/hjem/",
+    "kjeldeUrl": "https://www.akvagroup.no/egersundnet/hjem/",
+    "kontrollert": "2026-09-20"
+  },
+  {
+    "id": "froy",
+    "namn": "Frøy",
+    "kategoriar": ["bronnbat", "avlusing", "service", "not", "fortoying"],
+    "omtale": "Brønnbåttransport, avlusing, notvask, undervassarbeid og fortøying for havbruk.",
+    "dekning": ["Noreg"],
+    "dekningTekst": "Oppgir oppdrag langs heile norskekysten. Ledig fartøy, metode og mobilisering til den aktuelle fjorden er ikkje stadfesta her.",
+    "url": "https://froygruppen.no/services/",
+    "kjeldeUrl": "https://froygruppen.no/services/",
+    "kontrollert": "2026-09-20"
+  },
+  {
+    "id": "abyss",
+    "namn": "Abyss",
+    "kategoriar": ["service", "not", "avlusing", "fortoying"],
+    "omtale": "Servicefartøy, notvask, dykking, ROV-inspeksjon, fortøyingsarbeid og avlusing.",
+    "dekning": ["Noreg"],
+    "dekningTekst": "Oppgir tenester til oppdrett langs heile kysten. Tilgjengeleg kapasitet og oppdrag i ein bestemt fjord må avklarast.",
+    "url": "https://www.abyss.no/",
+    "kjeldeUrl": "https://www.abyss.no/",
+    "kontrollert": "2026-09-20"
+  },
+  {
+    "id": "aqs",
+    "namn": "AQS",
+    "kategoriar": ["service", "fortoying", "not", "avlusing"],
+    "omtale": "Service- og dykkeroppdrag, fortøying, arbeid med nøter og flytekragar, og hjelpefartøy ved avlusing.",
+    "dekning": ["Vestland", "Møre og Romsdal", "Trøndelag", "Nordland", "Troms", "Finnmark"],
+    "dekningTekst": "Oppgir fartøy og mannskap langs kysten frå Vestlandet til Finnmark. Nøyaktig sørgrense og lokal kapasitet er ikkje oppgitt.",
+    "url": "https://aqs.no/",
+    "kjeldeUrl": "https://aqs.no/om-oss/",
+    "kontrollert": "2026-09-20"
+  },
+  {
+    "id": "sjoprodukt",
+    "namn": "Sjøprodukt",
+    "kategoriar": ["service", "avlusing", "fortoying"],
+    "omtale": "Avlusing med FLS og Thermolicer, ROV-inspeksjon, fortøying, frakt, slep og beredskap.",
+    "dekning": ["Noreg"],
+    "dekningTekst": "Oppgir maritime operasjonar langs heile kysten og landsdekkjande frakt og slep. Dekning for den enkelte behandlinga må avklarast.",
+    "url": "https://sjoprodukt.no/tjenester/",
+    "kjeldeUrl": "https://sjoprodukt.no/tjenester/",
+    "kontrollert": "2026-09-20"
+  },
+  {
+    "id": "skretting",
+    "namn": "Skretting Norge",
+    "kategoriar": ["for"],
+    "omtale": "Fiskefôr til sjøbasert og landbasert oppdrett. Norsk produksjon i Stavanger, Averøy og Stokmarknes.",
+    "dekning": ["Noreg"],
+    "dekningTekst": "Oppgir fôrproduksjon for oppdrettsverksemder i Noreg. Distribusjon og produkt for eit bestemt anlegg må avklarast.",
+    "url": "https://www.skretting.com/no/",
+    "kjeldeUrl": "https://www.skretting.com/no/aapenhet-og-tillit/aapenhetsloven/redegjorelse-2026/",
+    "kontrollert": "2026-09-20"
+  },
+  {
+    "id": "biomar",
+    "namn": "BioMar Norge",
+    "kategoriar": ["for"],
+    "omtale": "Utviklar, produserer og distribuerer fiskefôr til norsk havbruk, med fabrikkar på Karmøy og Myre.",
+    "dekning": ["Noreg"],
+    "dekningTekst": "Oppgir fôrleveransar til oppdrettarar langs heile norskekysten. Leveringsavtale for det enkelte anlegget er ikkje kontrollert.",
+    "url": "https://www.biomar.com/no-no",
+    "kjeldeUrl": "https://www.biomar.com/no-no/om-oss/historien/biomar-norge",
+    "kontrollert": "2026-09-20"
+  }
+]

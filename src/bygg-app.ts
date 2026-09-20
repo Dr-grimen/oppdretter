@@ -23,6 +23,8 @@ import { gunzipSync } from "node:zlib";
 import { forrige, sisteRapportveke } from "./lib/tid.ts";
 import { valfriKjelde, type Kjeldestatus } from "./lib/kjeldestatus.ts";
 import { hentRensefisk, sisteRensefisk, rensefiskDetalj } from "./ingest/rensefisk.ts";
+import { lesBwSjukdom } from "./ingest/bw-sjukdom.ts";
+import { lesIla10km, ila10kmTreff } from "./ingest/ila10km.ts";
 
 const VEKER = 8;
 const dag = process.env["SNAPSHOT"] ?? new Date().toISOString().slice(0, 10);
@@ -30,6 +32,10 @@ const mappe = `${process.cwd()}/data/snapshots/${dag}`;
 
 const kjelder: Record<string, Kjeldestatus> = {};
 const snapshotTid = `${dag}T00:00:00Z`;
+const bwSjukdom = lesBwSjukdom(mappe, snapshotTid);
+Object.assign(kjelder, bwSjukdom.kjelder);
+const ila10km = lesIla10km(mappe, snapshotTid);
+kjelder.ila10km = ila10km.status;
 
 console.log("Byggjer oppdretter-datasettet\n");
 
@@ -251,6 +257,7 @@ const kartLok = lokalitetar
     const lus = sisteLus.get(nr);
     const rapport = rapportPerLok.get(nr);
     const rf = rensefisk.get(nr);
+    const ilaRingar = ila10kmTreff(l.lon ?? 0, l.lat ?? 0, ila10km.ringar);
     const g = lusegrense(l.fylkenr, siste.aar, siste.uke);
     const laksefisk = harLaksefisk(l);
     const historikk = veker.map((v) => {
@@ -275,6 +282,8 @@ const kartLok = lokalitetar
       ...(rapport ? { rapport: rapportDetalj(rapport) } : {}),
       ...(rf ? { rensefisk: rensefiskDetalj(rf) } : {}),
       ...(sjukdomPerLok.has(nr) ? { sjukdom: sjukdomPerLok.get(nr) } : {}),
+      ...(bwSjukdom.perLokalitet.has(nr) ? { bwSjukdom: bwSjukdom.perLokalitet.get(nr) } : {}),
+      ...(ilaRingar.length ? { ila10km: ilaRingar } : {}),
       ...(biomasseTid.get(nr) ? { fiskTid: biomasseTid.get(nr) } : {}),
       ...(laksefisk ? { gr: g.verdi } : { lf: false }),
       fisk: harFisk.get(nr) ?? null,
@@ -361,6 +370,7 @@ const data = {
   po: poGeo,
   sonerGeo: sonerGeo(soner_),
   pdSonerGeo: pdSvar.soner.map(({ verdi, geometri }) => ({ ...verdi, geometry: geometri })),
+  ila10kmGeo: ila10km.ringar,
   segment: SEGMENT,
   statistikk: {
     lokalitetar: lokalitetar.length,

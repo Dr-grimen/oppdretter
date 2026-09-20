@@ -18,14 +18,20 @@ hent() {
   echo "  $namn ..."
   if ! curl --compressed -fsSL --retry 2 --retry-delay 3 --connect-timeout 20 --max-time 900 -o "$fil" "$url"; then
     echo "    FEIL: kunne ikkje hente $namn" >&2
+    # A retry on the same day must not silently reuse an earlier successful
+    # gzip file and report that a failed source was fetched successfully.
+    rm -f "$fil" "$fil.gz"
     return 1
   fi
   # 200 med feil i kroppen er ei kjend felle hos Fiskeridirektoratet.
   if head -c 200 "$fil" | grep -q '"error"'; then
     echo "    FEIL: HTTP 200 men feil i kroppen: $(head -c 200 "$fil")" >&2
-    rm -f "$fil"; return 1
+    rm -f "$fil" "$fil.gz"; return 1
   fi
-  gzip -f "$fil"
+  if ! gzip -f "$fil"; then
+    rm -f "$fil" "$fil.gz"
+    return 1
+  fi
   echo "    $(du -h "$fil.gz" | cut -f1)"
 }
 
@@ -49,7 +55,7 @@ hent biomasse.json \
 hent produksjonsomrader.geojson \
   "https://gis.fiskeridir.no/server/rest/services/Yggdrasil/Produksjonsomr%C3%A5der/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson"
 
-for LAG in ilaprotectionzone ilasurveillancezone pdprotectionzone pdsurveillancezone pdzone localitywithila localitywithpd; do
+for LAG in ilaprotectionzone ilasurveillancezone pdprotectionzone pdsurveillancezone pdzone localitywithila localitywithpd isa10kmcircle; do
   hent "wfs-$LAG.geojson" \
     "https://geo.barentswatch.no/geoserver/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=bw:$LAG&outputFormat=application/json" || echo "  åtvaring: $LAG kunne ikkje hentast; kjeldeutfall blir synleg i appen" >&2
 done

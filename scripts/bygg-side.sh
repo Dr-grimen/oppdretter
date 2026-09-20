@@ -32,6 +32,25 @@ if not isinstance(data, dict) or not isinstance(data.get("lokalitetar"), list):
 if not data.get("bygd"):
     raise SystemExit("Datasettet manglar tidspunktet for oppdateringa.")
 
+# The supplier directory is editorial content, separate from fetched agency data.
+suppliers = json.loads((app / "leverandorar.json").read_text(encoding="utf-8"))
+if not isinstance(suppliers, list):
+    raise SystemExit("Leverandørlista må vere ei liste.")
+from urllib.parse import urlsplit
+supplier_ids = set()
+for supplier in suppliers:
+    for key in ("id", "namn", "kategoriar", "omtale", "dekning", "dekningTekst", "url", "kjeldeUrl", "kontrollert"):
+        if not supplier.get(key):
+            raise SystemExit(f"Leverandør manglar {key}.")
+    if supplier["id"] in supplier_ids:
+        raise SystemExit("Duplikat i leverandørlista.")
+    supplier_ids.add(supplier["id"])
+    for key in ("url", "kjeldeUrl"):
+        parsed = urlsplit(supplier[key])
+        if parsed.scheme != "https" or not parsed.netloc or parsed.username or parsed.password:
+            raise SystemExit("Leverandørlenkjer må vere offentlege HTTPS-adresser.")
+data["leverandorar"] = suppliers
+
 # Escaping '<' prevents all HTML/script termination, including mixed-case tags.
 # JSON.parse restores the original strings without interpreting them as HTML.
 encoded = json.dumps(data, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
@@ -39,7 +58,7 @@ for old, new in (("&", "\\u0026"), ("<", "\\u003c"), (">", "\\u003e"),
                  ("\u2028", "\\u2028"), ("\u2029", "\\u2029")):
     encoded = encoded.replace(old, new)
 
-asset_names = ["app.css", "app.js", "register-sw.js", "lib/leaflet.css", "lib/leaflet.js"]
+asset_names = ["app.css", "fjord.js", "app.js", "register-sw.js", "lib/leaflet.css", "lib/leaflet.js"]
 asset_names += ["lib/images/" + name for name in (
     "layers.png", "layers-2x.png", "marker-icon.png", "marker-icon-2x.png", "marker-shadow.png")]
 metadata_names = ["manifest.webmanifest", "icons/mark.svg", "icons/icon-192.png",
@@ -85,6 +104,7 @@ head = f'''<!doctype html>
 <link rel="stylesheet" href="./assets/{version}/lib/leaflet.css">
 <link rel="stylesheet" href="./assets/{version}/app.css">
 <script defer src="./assets/{version}/lib/leaflet.js"></script>
+<script defer src="./assets/{version}/fjord.js"></script>
 <script defer src="./assets/{version}/app.js"></script>
 <script defer src="./assets/{version}/register-sw.js"></script>
 </head>
@@ -101,6 +121,7 @@ write_atomic(app / "index.html", html)
 artifact = (f'<link rel="stylesheet" href="./assets/{version}/lib/leaflet.css">\n'
             f'<link rel="stylesheet" href="./assets/{version}/app.css">\n' + body +
             f'\n<script src="./assets/{version}/lib/leaflet.js"></script>'
+            f'\n<script src="./assets/{version}/fjord.js"></script>'
             f'\n<script src="./assets/{version}/app.js"></script>\n')
 write_atomic(app / "artifact.html", artifact)
 precache = [f"assets/{version}/{name}" for name in asset_names] + metadata_names

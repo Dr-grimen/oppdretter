@@ -38,3 +38,7 @@ Køyr `npm run typecheck`, `npm test`, pakking og `scripts/sjekk-side.mjs`. Kont
 Eksisterande workflow startar planlagt eller manuelt, ikkje på kvar push. Oppdaterte kjelder og publisering må verifiserast etter ei kodeendring. Endringar i workflow kan krevje ekstra GitHub-tilgang; ikkje ta for gitt at eit vanleg push-token har workflow-scope.
 
 Sondre har jobba på Storevikholmen (11492, PO 3). Den viktige funksjonen er å sjå lusetal hos dei andre anlegga i fjorden. Bruk 20 km standardradius, og ikkje omtal eit uvekta nabosnitt som smittepress.
+
+## Min fjord og BarentsWatch, 20. september 2026
+
+Min fjord samlar nabo-lusetal, rapportdekning, åtte vekers utvikling og ni kjeldekontrollerte leverandørar. Anlegg og radius kan veljast. Avstand er luftlinje, og leverandørane er viste etter oppgitt fylkes-/landsdekning; dei er ikkje plasserte ved eit oppdikta punkt i fjorden. BarentsWatch sine offentlege PD-/ILA-registreringar og originale ILA 10 km-ringar er integrerte. Tomt anlegg betyr ikkje avslutta sjukdomssak. Ringar har si eiga veke og er ikkje formelle kontrollsoner. Full API-tilgang er ikkje kopla til: Sondre har ingen BarentsWatch-konto. Sjå dei to nye kjeldenotata i docs/.
