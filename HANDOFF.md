@@ -1,171 +1,40 @@
-# Handoff — oppdretter
+# Oppdretter – vidare arbeid
 
-Lim inn heile denne fila i ein ny sesjon, eller sei «les ~/oppdretter/HANDOFF.md».
-Skrive 10. september 2026.
+Oppdatert 20. september 2026 etter Sondre sitt uttrykkelege oppdrag om å ta full styring og oppgradere heile appen.
 
----
+## Autoritativ app og prosjekt
 
-## Les dette først
+- Publisert app: https://dr-grimen.github.io/oppdretter/
+- GitHub: Dr-grimen/oppdretter, offentleg repo, eksisterande dagleg GitHub Actions-jobb.
+- Opphavleg lokal mappe: /Users/sondregrimen/oppdretter.
+- Arbeidskopi for denne oppgraderinga: /Users/sondregrimen/Documents/Codex/2026-09-20/s/work/oppdretter.
+- Gamle Claude Artifact-kopiar er stillbilete og skal ikkje brukast som fasit.
 
-Sondre er **ikkje teknisk** og har **ingen Run-knapp**. Køyr alt sjølv med Bash.
-Aldri «lim inn dette i Terminal». Svar på nynorsk, kort, utan uforklart jargong.
-Alt skal vere **gratis** — vis månadspris før noko som kostar.
+## Kva som er endra
 
-Han har **jobba på Storevikholmen (lokalitet 11492, PO 3)**. Det er den einaste
-bransjeerfaringa han har delt, og den beste produktinnsikta i heile prosjektet kom
-derfrå: det ein oppdrettar vil vite er **lusetala hos naboane i fjorden**, ikkje
-berre sine eigne. Spør han om drifta før du gjettar.
+Heilt ny responsiv utforming med sidemeny, mobilmeny, oversiktskort, felles anleggs-/fartøykart, anleggsregister, kjeldestatus og detaljpanel. Anlegg kan følgjast lokalt og delast med lenkje. CSV-eksport har vern mot formelinjeksjon. MarineTraffic-lenkjer er eksterne; Kystverket leverer sjøtrafikken gratis.
 
-Han går tom for **vekekvote**, ikkje tokens. Ikkje brenn kvote på lange
-undersøkingar utan at det trengst.
+Mattilsynet-data har no konsekvent val av nyaste korrigerte rapport før kurve, tal og hendingar blir berekna. Feil i ei valfri kjelde blir oppgitt som ukjent/feila, ikkje som null. Innhentinga legg ved temperatur, lusestadium, behandlingar og månadlege rensefiskdata. Kjeldestatus ligg i `D.kjelder`. Domene- og feiltilstandar har automatiske testar.
 
----
+Leaflet er lokalt lagra, og kvar publisering får innhaldshasha ressursar. Nettappen kan installerast og bruker ein samsvarande lokal reservekopi utan nett. Kartfliser blir ikkje cachelagra. Stale-/offline-status skal alltid vere synleg.
 
-## Kva som finst
+## Viktige presiseringar
 
-| | |
-|---|---|
-| Live app | https://dr-grimen.github.io/oppdretter/ |
-| Kode | https://github.com/Dr-grimen/oppdretter (offentleg) |
-| Artifact-kopi | https://claude.ai/code/artifact/f36a42ec-3f0b-4277-a03d-0fc75cfc869f |
-| Lokalt | `~/oppdretter` |
+- Bruk `app/mal.html`, `app/app.css` og `app/app.js`; aldri rediger generert `app/index.html` direkte.
+- Rådata ligg i `data/snapshots/<dato>`. Eldre data må aldri få ein oppdikta fersk dato.
+- AIS-tid frå Kystdatahuset er UTC sjølv når `Z` manglar. LineString går frå eldre til nyare koordinat; bruk siste punkt.
+- Ein båt kan vere nær eit anlegg utan å besøkje det. Ukjend fart må ikkje telje som låg fart.
+- Lusekravet er færre enn 0,5 / 0,2; lik grensa skal ikkje merkast under. Merk generelle grenser og eventuelle individuelle unntak tydeleg.
+- Rensefiskbehaldning gjeld slutten av månaden før rapportmånaden, ikkje no.
+- Ingen rapport betyr ukjent; sjukdomsfråvær i datasettet er ikkje ei friskmelding.
+- Ingen funksjon sender e-post, SMS eller andre meldingar til folk. «Hendingar» er ei oversikt inne i appen.
+- Bruk faktiske primærkjelder og `docs/KJELDER-2026-09-20.md`; ikkje lov «alt frå Mattilsynet» eller eit garantert sanntidskart.
+- Kjøp ingen tenester. Standard er 0 kr. Vis månadspris før eventuell betalt avhengigheit.
 
-Oppdaterer seg sjølv kvar morgon 05:20 UTC via `.github/workflows/dagleg.yml`.
-Tek 50 sekund. **Ingen nøklar, ingen konto, 0 kr.**
+## Verifikasjon og publisering
 
-### Byggje lokalt
-```
-./scripts/snapshot.sh          # dagens rådata (blir overskrivne hos kjelda!)
-npm run arkiver                # 30 kB kompakt tilstand → data/arkiv/, blir committa
-npm run bygg                   # hentar alt, køyrer reglane → data/app/data.json
-./scripts/bygg-side.sh         # → app/index.html (Pages) + app/artifact.html
-node scripts/sjekk-side.mjs app/index.html
-```
-**Rediger `app/mal.html`, aldri `app/index.html`** — den blir bygd og er git-ignorert.
+Køyr `npm run typecheck`, `npm test`, pakking og `scripts/sjekk-side.mjs`. Kontroller både 390 px mobil og vanleg dataskjerm i nettlesaren. Sjå særleg etter kartmarkørar, zoom-/lagkontrollar, søk → detalj → naboar, favorittar, tomme filter, kildefeil og fanebytte.
 
-Node ligg i `~/.local/share/node`, symlenka i `~/.local/bin`. Ingen Homebrew.
+Eksisterande workflow startar planlagt eller manuelt, ikkje på kvar push. Oppdaterte kjelder og publisering må verifiserast etter ei kodeendring. Endringar i workflow kan krevje ekstra GitHub-tilgang; ikkje ta for gitt at eit vanleg push-token har workflow-scope.
 
----
-
-## Fem feller eg gjekk i. Ikkje gjenta dei.
-
-1. **Verifiser i nettlesar, ikkje berre i data.** Eg publiserte to funksjonar som
-   aldri var i fila og sa dei var ferdige. `tsc`, `JSON.parse` og `new Function()`
-   fangar det ikkje. Klikk gjennom kvar fane. `window.onerror` fangar
-   ReferenceError. `scripts/sjekk-side.mjs` sjekkar no at kvar kalla funksjon finst
-   — behald den kontrollen.
-
-2. **Bruk `assert` i python-patchar.** `s.replace(markør, ...)` som ikkje finn
-   markøren gjer ingenting og seier ingenting. Det er slik dei to funksjonane forsvann.
-
-3. **Artifact og Pages er ikkje same sak.** Artifact-innpakninga legg på
-   `<!doctype>`, charset og viewport. GitHub Pages gjer det ikkje. Utan viewport
-   reknar telefonar sida som 980 px og heile mobil-CSS-en er daud. `bygg-side.sh`
-   byggjer difor to utgåver.
-
-4. **10 km er for tett i ein fjord.** Rundt Storevikholmen har berre 2 av 11
-   naboar innan 10 km luserapport. Standard nabo-radius er 20 km (`NABO_KM`).
-
-5. **gh manglar `workflow`-scope.** Workflow-filer kan ikkje pushast. Legg dei inn
-   via GitHub si opplastingsside i nettlesaren (`/upload/main/.github/workflows`)
-   med `mcp__claude-in-chrome__file_upload`. Det krev ingen nye løyve.
-
----
-
-## Verifiserte fakta — ikkje bruk kvote på å finne dei igjen
-
-Alt står med kjelde i `docs/API-FUNN.md`, `docs/API-FUNN-DEL2.md`, `docs/UTAN-KONTO.md`.
-
-- **Lakselus er ope hos Mattilsynet**, ikkje berre hos BarentsWatch:
-  `akvakultur-offentlig-api.fisk.mattilsynet.io/api/lakselus/v2/rapporteringer`
-  Krev berre headeren `Client-Id: oppdretter` — eit sjølvvalt namn, ikkje ein nøkkel.
-- **Lusegrensa:** FOR-2012-12-05-1140 § 8. 0,5 normalt, 0,2 i veke 16–21 sør og
-  21–26 nord (fylke 18/55/56). Veke 21 er 0,2 i begge. Gjaldt frå 6.3.2017 —
-  ikkje bruk regelen på eldre veker.
-- **Rapporteringsfrist:** tysdag i påfølgande veke. Ei veke er aldri heilt ferdig.
-  Manglande rapport tyder **ukjent**, ikkje trygt.
-- **Brønnbåt vs. slaktebåt:** AIS «Fish Carrier» skil dei ikkje. Mattilsynet sitt
-  register over godkjende transporteiningar gjer det, via kallesignal.
-- **Flyfoto finst ikkje ope.** Norge i bilder svarar «Bruker kan ikke autentiseres».
-  Kartverket sin opne cache har berre topo, toporaster, topograatone, sjokartraster.
-- **Biomasse i tonn per anlegg** er unnateke offentlegheit, forvaltningslova § 13.
-- Blåskjell, tare og torsk har ikkje lakselus. 315 anlegg er merkte `lf:false`.
-
----
-
-## Planen, i rekkjefølgje
-
-### 0. Kartet — Sondre sa «fiks kartet, den er dårleg». IKKJE gjort.
-
-Eg såg på det på mobil (390 px) rett før sesjonen slutta. Det som er gale:
-
-- **Ingen anleggsprikkar synlege** ved standardzoom (heile Noreg). Prikkane er for
-  små, og 1 377 av dei forsvinn i sjøkartet.
-- **Sjøkartet er uleseleg zooma ut** — djuptal og fyrsymbol over heile skjermen.
-  Bruk «Kart» (topo) eller «Enkelt» som standard, og byt til sjøkart først når
-  brukaren zoomar inn forbi ca. zoom 9.
-- **Zoom-knappane blir dekte**: «+» er gøymd bak lagvalet øvst til høgre.
-- **Teiknforklaringa blir kutta** nedst til venstre (berre «…efisk» synleg).
-- **Kartet opnar alltid på heile Noreg.** Har brukaren sett anlegget sitt
-  (`S.mine`), opne der på zoom 11 med naboane synlege. Har han sett område
-  (`S.po`), opne på det området.
-
-Test på 390 px med `resize_window` og `window.innerWidth`-sjekk — førehandsvisinga
-kan sitje fast på 980 px utan å seie frå.
-
-### 1. Seks funn står att (halvdags arbeid)
-
-- **Retta luserapportar blir handterte tre ulike måtar.** Trendkurva, siste-veke-talet
-  og hendingsdeteksjonen les same rad ulikt. Fiks: kollaps rader per
-  `(lokalitetsnummer, år, uke)` med nyaste `rapporteringstidspunkt` **før** alt anna,
-  i `src/bygg-app.ts`.
-- **AIS-feil blir ikkje sagt til brukaren.** Helsesjekken stoppar publisering, men om
-  ein delvis feil slepp gjennom seier Båtar-fana «0 brønnbåtar» — ei aktiv løgn.
-  Skriv `aisFeila:true` i datasettet og vis det i UI-et.
-- **Søket gjeld alle fanene.** Du kan søke i feeden, byte til Kart, og sjå eit tomt
-  kart utan å skjøne kvifor. Vis eit merke over kartet når `S.sok` ikkje er tom.
-- **Anlegg du følgjer som blir nedlagt** gir «0 varsel» utan forklaring. Sjekk
-  `S.mine` mot `LOK` ved oppstart og sei frå.
-- **«Over grensa: 10»** bør vere «10 av 601 rapporterte», med ei rad for dei 776
-  utan rapport.
-- **Rydd daude `.pkt.p-*` CSS-reglar** i `app/mal.html` (2 stk. igjen etter
-  Leaflet-byttet).
-
-### 2. To brev Sondre må sende (avgjer om produktet veks)
-
-- **Fiskeridirektoratet:** innsynskrav etter akvakulturdriftsforskrifta § 44 om
-  utsett og utslakting per lokalitet. Får han ja, blir `harvest_window` mogleg —
-  det einaste varselet som ikkje finst i dag.
-- **BarentsWatch:** kan ILA/PD-sonene brukast kommersielt? Vilkåra seier «Some
-  restrictions apply — contact for details». Dette må avklarast **før** han sel noko.
-  Sjå `docs/UTAN-KONTO.md` § 7.
-
-### 3. Test på ekte folk før du byggjer meir
-
-Ein oppdrettar og ein leverandør. Vi har gjetta på kva som er nyttig. Sondre har
-stått på merdkanten, men to menneske til vil finne ting vi begge overser.
-
-### 4. Ikkje bygg dette
-
-- **Eit finare kart enn BarentsWatch.** Du taper og treng ikkje vinne.
-- **Prognose eller maskinlæring.** Minst to andre prosjekt gjer det alt, og alle
-  reglane her er reglar, ikkje modellar.
-- **Rå AIS-besøksdeteksjon frå botnen.** Kystdatahuset + brønnbåtregisteret held.
-- **Sanntid.** Dagleg batch held. Lusedata kjem uansett berre ein gong i veka.
-
----
-
-## Forretningssida, ærleg
-
-Av dei ti opphavlege hendingsreglane er **ingen** eigen analyse. Dei er API-kall,
-ein diff, eller ei linje SQL. Det einaste tomrommet i heile Noreg er **push** —
-ingen kjelde varslar når noko endrar seg. BarentsWatch har til og med favorittliste.
-Utvalet finst gratis; meldinga manglar.
-
-**Målgruppe B (leverandørane som skal betale) er svakare enn planen gjekk ut frå.**
-Manolin i Bergen sel alt «Customer Account Intelligence» til leverandørar i Noreg.
-Tvangsmulkta verkar ikkje som pressmiddel etter Mattilsynet si eiga vurdering, og
-frå 2. juli 2026 reagerer dei ikkje automatisk på ei enkelt overskriding. Vi har
-**ingen verifisert prisanker** i denne produktkategorien.
-
-Ikkje selg noko før punkt 2 og 3 over er gjort.
+Sondre har jobba på Storevikholmen (11492, PO 3). Den viktige funksjonen er å sjå lusetal hos dei andre anlegga i fjorden. Bruk 20 km standardradius, og ikkje omtal eit uvekta nabosnitt som smittepress.

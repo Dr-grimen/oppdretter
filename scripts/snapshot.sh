@@ -16,7 +16,7 @@ hent() {
   local namn=$1 url=$2
   local fil="$UT/$namn"
   echo "  $namn ..."
-  if ! curl -fsSL --retry 3 --retry-delay 5 --max-time 300 -o "$fil" "$url"; then
+  if ! curl --compressed -fsSL --retry 2 --retry-delay 3 --connect-timeout 20 --max-time 900 -o "$fil" "$url"; then
     echo "    FEIL: kunne ikkje hente $namn" >&2
     return 1
   fi
@@ -44,14 +44,14 @@ hent akvakulturregister.csv \
 # hent akvakultursoknader.csv "<URL manglar>"
 
 hent biomasse.json \
-  "https://gis.fiskeridir.no/server/rest/services/Yggdrasil/Biomasse/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&f=json"
+  "https://gis.fiskeridir.no/server/rest/services/Yggdrasil/Biomasse/FeatureServer/0/query?where=1%3D1&outFields=*&returnGeometry=false&f=json" || echo "  åtvaring: biomasse manglar; status blir ukjent" >&2
 
 hent produksjonsomrader.geojson \
   "https://gis.fiskeridir.no/server/rest/services/Yggdrasil/Produksjonsomr%C3%A5der/FeatureServer/0/query?where=1%3D1&outFields=*&f=geojson"
 
-for LAG in ilaprotectionzone ilasurveillancezone pdprotectionzone pdsurveillancezone localitywithila localitywithpd; do
+for LAG in ilaprotectionzone ilasurveillancezone pdprotectionzone pdsurveillancezone pdzone localitywithila localitywithpd; do
   hent "wfs-$LAG.geojson" \
-    "https://geo.barentswatch.no/geoserver/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=bw:$LAG&outputFormat=application/json"
+    "https://geo.barentswatch.no/geoserver/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=bw:$LAG&outputFormat=application/json" || echo "  åtvaring: $LAG kunne ikkje hentast; kjeldeutfall blir synleg i appen" >&2
 done
 
 echo

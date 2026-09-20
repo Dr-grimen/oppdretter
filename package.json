@@ -14,7 +14,8 @@
     "over-grensa": "node --experimental-strip-types src/events/over-grensa.ts",
     "bygg": "node --experimental-strip-types src/bygg-app.ts",
     "arkiver": "node --experimental-strip-types src/arkiver.ts",
-    "dagleg": "./scripts/snapshot.sh && npm run arkiver && npm run bygg && ./scripts/bygg-side.sh"
+    "dagleg": "./scripts/snapshot.sh && npm run arkiver && npm run bygg && ./scripts/bygg-side.sh",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

@@ -94,14 +94,14 @@ export function finnOverGrensa(rapportar: Luserapport[], c: Ctx): Hending[] {
       ...grunnlag(r, c),
       natural_key: `over_grensa:${r.lokalitetsnummer}:${r.år}-${r.uke}`,
       type: "over_grensa",
-      tittel: `${r.lokalitetsnavn} er over lusegrensa`,
+      tittel: `${r.lokalitetsnavn} er ved/over generell lusegrense`,
       detalj:
         `${lus.toFixed(2)} vaksne holus mot grensa på ${g.verdi} ` +
         `(${g.region === "nord" ? "nordregelen" : "sørregelen"}, veke ${r.uke}). ` +
-        `${overskot.toFixed(1)} gonger grensa.`,
+        `${overskot.toFixed(1)} gonger generell grense. Individuelle unntak og handheving er ikkje vurderte.`,
       alvor: overskot >= 2 ? 3 : 2,
       relevans: {
-        avlusing: { score: Math.min(100, Math.round(overskot * 40)), why: "Anlegget må sette inn tiltak omgåande. Avlusing er nær føreståande." },
+        avlusing: { score: Math.min(100, Math.round(overskot * 40)), why: "Lusetalet er ved eller over den generelle grensa. Eventuelle tiltak må vurderast ut frå rapport, unntak og fiskehelse." },
         bronnbat: { score: Math.min(90, Math.round(overskot * 30)), why: "Overskriding fører ofte til badebehandling eller utslakting, som krev båt." },
         service: { score: 30, why: "Mekanisk avlusing krev ofte innleigd mannskap og utstyr." },
       },
@@ -127,11 +127,11 @@ export function finnLuseauke(
     // Tre MÅLINGAR er ikkje det same som tre veker. Under 4 °C er teljeplikta
     // kvar 14. dag, og eit anlegg kan hoppe over veker. Rekn kor langt det
     // faktisk spenner, så teksten ikkje lyg.
-    const spenn = (d.aar - a.aar) * 52 + (d.uke - a.uke) + 1;
+    const spenn = Math.round((Date.parse(vekeStart(d.aar, d.uke)) - Date.parse(vekeStart(a.aar, a.uke))) / (7 * 864e5)) + 1;
 
     const g = lusegrense(l.fylkenr, d.aar, d.uke);
     if (!g.gyldig) continue;
-    if (d.lus > g.verdi) continue; // då er det over_grensa i staden
+    if (erOverGrensa(d.lus, g)) continue; // då er det over_grensa i staden
     const stig = d.lus > b.lus && b.lus > a.lus;
     const auke = d.lus - a.lus;
     if (!stig || auke < 0.05) continue;
@@ -156,7 +156,7 @@ export function finnLuseauke(
         `. Grensa er ${g.verdi}. Framleis under, men på veg opp.`,
       alvor: naerleik > 0.8 ? 2 : 1,
       relevans: {
-        avlusing: { score: Math.round(naerleik * 70), why: "Tre veker med stigning endar som regel i behandling. Ta kontakt før dei må." },
+        avlusing: { score: Math.round(naerleik * 70), why: "Tre stigande teljingar gir grunn til å følgje utviklinga. Tala åleine seier ikkje om behandling er planlagd." },
         for: { score: 20, why: "Lusepress endrar fôringsregime og appetitt." },
         service: { score: 15, why: "Førebyggande tiltak som luseskjørt blir vurdert på dette stadiet." },
       },

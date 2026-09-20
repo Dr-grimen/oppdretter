@@ -1,91 +1,94 @@
-/**
- * Helsesjekk før publisering. Stoppar utlegginga heller enn å publisere
- * noko gale — ei side som står stille ein dag er betre enn ei som lyg.
- *
- * Køyr:  node scripts/sjekk-side.mjs [sti]
+/** Validate the generated document, source health and the scripts it actually loads.
+ * Browser interaction is verified separately. Optional source outages are allowed
+ * only when explicitly represented; an unknown value must never become zero.
  */
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
+import { dirname, resolve, sep } from "node:path";
+import { Script } from "node:vm";
 
-const sti = process.argv[2] ?? "app/index.html";
+const sti = resolve(process.argv[2] ?? "app/index.html");
+const rot = dirname(sti);
 const h = readFileSync(sti, "utf8");
 const feil = [];
-
-if (h.includes("__DATA__")) feil.push("datablokka blei aldri sett inn");
-
-const merke = 'id="d"';
-const iMerke = h.indexOf(merke);
-if (iMerke < 0) feil.push('fann ikkje <script id="d">');
-
+const varsler = [];
 let d = null;
-if (iMerke >= 0) {
-  const start = h.indexOf(">", iMerke) + 1;
-  const slutt = h.indexOf("</script>", start);   // frå datablokka, ikkje frå toppen
-  try {
-    d = JSON.parse(h.slice(start, slutt).replaceAll("<\\/", "</"));
-  } catch (e) {
-    feil.push(`datablokka er ikkje gyldig JSON: ${e.message}`);
-  }
-}
+if (h.includes("__DATA__")) feil.push("datablokka blei aldri sett inn");
+const data = h.match(/<script\b[^>]*\bid=["']d["'][^>]*>([\s\S]*?)<\/script>/i);
+if (!data) feil.push('fann ikkje <script id="d">');
+else try { d = JSON.parse(data[1].replaceAll("<\\/", "</")); }
+catch (e) { feil.push(`datablokka er ikkje gyldig JSON: ${e.message}`); }
 
 if (d) {
-  if (!d.hendingar?.length) feil.push("null hendingar");
+  if (!Array.isArray(d.hendingar)) feil.push("manglar hendingsliste");
   if (!d.lokalitetar?.length) feil.push("null lokalitetar");
   if (!d.po?.length) feil.push("null produksjonsområde");
-  if (!d.veke?.uke) feil.push("manglar rapportveke");
-  const medLus = d.lokalitetar?.filter((l) => l.lus !== null).length ?? 0;
-  if (medLus < 200) feil.push(`berre ${medLus} anlegg har lusetal — venta over 200`);
-  // Feilar AIS under bygginga, blir fartoy tom. Då seier Båtar-fana at det er
-  // null brønnbåtar i sjøen — ei aktiv løgn, ikkje ei feilmelding.
-  const fartoy = d.fartoy?.length ?? 0;
-  if (fartoy < 100) feil.push(`berre ${fartoy} fartøy — AIS har truleg feila`);
-  const godkjende = d.fartoy?.filter((f) => f.g === "godkjend").length ?? 0;
-  if (godkjende < 20) feil.push(`berre ${godkjende} godkjende brønnbåtar — brønnbåtregisteret har truleg feila`);
-  const soner = d.lokalitetar?.filter((l) => l.so?.length).length ?? 0;
-  if (soner === 0) feil.push("ingen anlegg i sjukdomssone — WFS-en har truleg feila");
-  const dagar = (Date.now() - Date.parse(d.bygd)) / 36e5;
-  if (dagar > 6) feil.push(`datasettet er ${Math.round(dagar)} timar gammalt`);
-}
-
-/* Kvar funksjon som blir kalla må finnast.
-   Denne kontrollen finst fordi to funksjonar ein gong forsvann ut av fila utan at
-   noko sa frå: syntaksen var gyldig, dataa var rette, og feilen viste seg først
-   når nokon trykte på fana. */
-{
-  const i0 = h.lastIndexOf("<script>");
-  let js = h.slice(i0, h.lastIndexOf("</script>"));
-  // Kommentarar og tekststrengar inneheld ord som liknar funksjonskall
-  // («Kartverket (NLOD)», «(fleire …»). Dei må vekk før vi leiter.
-  js = js
-    .replace(/\/\*[\s\S]*?\*\//g, " ")
-    .replace(/^\s*\/\/.*$/gm, " ")
-    .replace(/'(?:[^'\\\n]|\\.)*'/g, "''")
-    .replace(/"(?:[^"\\\n]|\\.)*"/g, '""')
-    .replace(/`(?:[^`\\]|\\.)*`/g, "``");
-  const definerte = new Set([...js.matchAll(/function\s+([A-Za-zÆØÅæøå_$][\w$]*)\s*\(/g)].map((m) => m[1]));
-  for (const m of js.matchAll(/(?:var|let|const)\s+([\w$]+)\s*=\s*function/g)) definerte.add(m[1]);
-  const innebygde = new Set([
-    "if","for","while","switch","catch","return","typeof","function","new","await",
-    "Number","String","Boolean","Array","Object","JSON","Math","Date","Set","Map",
-    "parseInt","parseFloat","isNaN","console","setTimeout","clearTimeout","alert",
-    "getComputedStyle","requestAnimationFrame","ResizeObserver","Promise","RegExp","Error",
-  ]);
-  const manglar = new Set();
-  for (const m of js.matchAll(/(^|[^\w$.])([A-Za-zÆØÅæøå_$][\w$]*)\s*\(/g)) {
-    const n = m[2];
-    if (!definerte.has(n) && !innebygde.has(n)) manglar.add(n);
+  if (!Number.isInteger(d.veke?.uke) || !Number.isInteger(d.veke?.aar)) feil.push("manglar rapportveke");
+  const alder = (Date.now() - Date.parse(d.bygd)) / 36e5;
+  if (!Number.isFinite(alder) || alder < -0.1 || alder > 6) feil.push("ugyldig eller meir enn 6 timar gammalt byggtidspunkt");
+  if (d.schemaVersjon !== 2 || !d.kjelder) feil.push("manglar dokumentert kjeldestatus");
+  else {
+    for (const namn of ["lakselus", "ais", "register", "soner", "pdsoner", "skipsregister", "bronnbatregister", "biomasse", "sjukdom", "soknader", "rensefisk"]) {
+      const k = d.kjelder[namn];
+      if (!k || !["ok", "delvis", "feila"].includes(k.status) || !Number.isFinite(Date.parse(k.henta))) {
+        feil.push(`ugyldig kjeldestatus for ${namn}`);
+      } else if (k.status !== "ok") {
+        if (!k.melding) feil.push(`kjeldeutfall utan forklaring: ${namn}`);
+        varsler.push(`${namn}: ${k.status}`);
+      }
+    }
+    if (d.aisFeila !== (d.kjelder.ais?.status === "feila")) feil.push("AIS-feilflagget og kjeldestatus er usamde");
+    if (d.aisFeila && d.fartoy?.length) feil.push("fartøy blir viste som ferske under AIS-feil");
+    if (d.kjelder.lakselus?.status === "ok") {
+      const n = d.lokalitetar?.filter((l) => typeof l.lus === "number").length ?? 0;
+      if (n < 200) feil.push(`berre ${n} anlegg med lusetal trass frisk kjelde — undersøk før publisering`);
+    }
   }
-  if (manglar.size) feil.push(`kallar funksjonar som ikkje finst: ${[...manglar].join(", ")}`);
+  const lokale = d.lokalitetar ?? [];
+  if (new Set(lokale.map((l) => l.n)).size !== lokale.length) feil.push("duplikate lokalitetar");
+  for (const l of lokale) {
+    if (l.lus !== null && (typeof l.lus !== "number" || !Number.isFinite(l.lus) || l.lus < 0)) feil.push(`ugyldig lusetal på ${l.n}`);
+    if (l.hist && l.hist.length !== d.veker?.length) feil.push(`feil historikklengd på ${l.n}`);
+    if (l.rapport && (l.rapport.aar !== d.veke.aar || l.rapport.uke !== d.veke.uke)) feil.push(`feil rapportveke på ${l.n}`);
+    if (l.rapport && l.hist && l.hist.at(-1) !== null && Math.abs(l.hist.at(-1) - l.lus) > 0.0051) feil.push(`kurve og siste tal er usamde på ${l.n}`);
+  }
+  const fartoy = d.fartoy ?? [];
+  if (new Set(fartoy.map((f) => f.m)).size !== fartoy.length) feil.push("duplikate AIS-fartøy");
+  for (const f of fartoy) {
+    if (!Number.isFinite(f.la) || Math.abs(f.la) > 90 || !Number.isFinite(f.lo) || Math.abs(f.lo) > 180) feil.push(`ugyldig AIS-posisjon for ${f.m}`);
+    if (!Number.isFinite(Date.parse(f.t)) || !/(Z|[+-]\d\d:\d\d)$/.test(f.t)) feil.push(`AIS-tid utan tidssone for ${f.m}`);
+    if (f.ved && (f.fa === null || f.fa > 2 || f.fa < 0)) feil.push(`nærleik blir tolka frå ukjend/høg fart for ${f.m}`);
+  }
 }
 
+function lokalFil(url) {
+  if (/^(?:https?:|data:|\/\/|#)/.test(url)) return null;
+  const fil = resolve(rot, url.split(/[?#]/)[0]);
+  if (!fil.startsWith(rot + sep)) { feil.push(`ressurs utanfor app-mappa: ${url}`); return null; }
+  if (!existsSync(fil)) { feil.push(`lokal ressurs manglar: ${url}`); return null; }
+  return fil;
+}
+let skript = 0;
+for (const m of h.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+  const attr = m[1];
+  if (/\btype=["']application\/(?:ld\+)?json["']/i.test(attr) || /\bid=["']d["']/.test(attr)) continue;
+  const src = attr.match(/\bsrc=["']([^"']+)["']/i)?.[1];
+  const fil = src ? lokalFil(src) : null;
+  if (src && !fil) continue;
+  const kode = fil ? readFileSync(fil, "utf8") : m[2];
+  if (!kode.trim()) continue;
+  skript++;
+  try { new Script(kode, { filename: fil ?? `${sti}:inline-${skript}` }); }
+  catch (e) { feil.push(`JavaScript-feil: ${e.message}`); }
+}
+for (const m of h.matchAll(/<link\b[^>]*href=["']([^"']+)["'][^>]*>/gi)) lokalFil(m[1]);
+if (!skript) feil.push("ingen køyrbare lokale skript");
 if (!h.includes("leaflet")) feil.push("Leaflet manglar");
-if (!h.includes("NLOD")) feil.push("NLOD-attribusjonen manglar — det er eit lisenskrav");
+if (!h.includes("NLOD")) feil.push("NLOD-attribusjonen manglar");
+if (!/name=["']viewport["']/.test(h) && !sti.endsWith("artifact.html")) feil.push("viewport for mobil manglar");
 
 if (feil.length) {
-  console.error("SJEKKEN FEILA:");
-  for (const f of feil) console.error("  ✗ " + f);
+  console.error("SJEKKEN FEILA:\n" + [...new Set(feil)].map((f) => "  ✗ " + f).join("\n"));
   process.exit(1);
 }
-console.log(
-  `OK: ${d.hendingar.length} varsel · ${d.lokalitetar.length} anlegg · ` +
-  `${d.fartoy?.length ?? 0} fartøy · veke ${d.veke.uke} · ${Math.round(h.length / 1024)} kB`,
-);
+for (const v of varsler) console.warn("KJELDEVARSEL: " + v);
+console.log(`OK: ${d.hendingar.length} varsel · ${d.lokalitetar.length} anlegg · ${d.fartoy?.length ?? 0} fartøy · veke ${d.veke.uke} · ${skript} skript kontrollerte`);

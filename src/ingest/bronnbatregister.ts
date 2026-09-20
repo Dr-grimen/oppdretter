@@ -69,6 +69,7 @@ export async function hentBronnbatregister(): Promise<Transporteining[]> {
   const iNamn = i("NAVN"), iKs = i("KALLESIGNAL"), iVerk = i("VIRKSOMHETSNAVN");
   const iOrg = i("BEDRIFTSNR"), iKom = i("KOMMUNE"), iFyl = i("FYLKE");
   const iFra = i("GODKJENTFRADATO"), iTil = i("GODKJENTTILDATO");
+  if ([iNamn, iKs, iVerk, iFra, iTil].some((n) => n < 0)) throw new Error("Brønnbåtlista har ukjende kolonnar");
 
   const idag = new Date().toISOString().slice(0, 10);
   const ut: Transporteining[] = [];
@@ -77,6 +78,7 @@ export async function hentBronnbatregister(): Promise<Transporteining[]> {
     const f = delLinje(l);
     const ks = (f[iKs] ?? "").trim().toUpperCase();
     const til = (f[iTil] ?? "").trim().slice(0, 10) || null;
+    const fra = (f[iFra] ?? "").trim().slice(0, 10) || null;
     // Eit kallesignal er bokstavar og tal utan mellomrom. «ZD 25876» er eit bilskilt.
     const erFartoy = /^[A-Z0-9]{4,7}$/.test(ks);
     ut.push({
@@ -86,10 +88,10 @@ export async function hentBronnbatregister(): Promise<Transporteining[]> {
       kallesignal: erFartoy ? ks : null,
       kommune: (f[iKom] ?? "").trim() || null,
       fylke: (f[iFyl] ?? "").trim() || null,
-      godkjentFra: (f[iFra] ?? "").trim().slice(0, 10) || null,
+      godkjentFra: fra,
       godkjentTil: til,
       erFartoy,
-      gyldig: til === null || til >= idag,
+      gyldig: (til === null || til >= idag) && (fra === null || fra <= idag),
     });
   }
   return ut;

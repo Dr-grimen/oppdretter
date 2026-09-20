@@ -65,9 +65,11 @@ export function lusegrense(fylkenr: string, aar: number, uke: number): Grense {
   };
 }
 
-/** Rein overskriding av den juridiske grensa. */
+/** At/above the general threshold. § 8 requires FEWER than 0.5 / 0.2.
+ * This indicator is not an individual enforcement decision; exceptions exist.
+ */
 export function erOverGrensa(voksneHunnlus: number, grense: Grense): boolean {
-  return voksneHunnlus > grense.verdi;
+  return grense.gyldig && Number.isFinite(voksneHunnlus) && voksneHunnlus >= grense.verdi;
 }
 
 /**
@@ -84,7 +86,8 @@ export function erOverGrensa(voksneHunnlus: number, grense: Grense): boolean {
 export function erHandhevaOver(serie: number[], grense: Grense): boolean {
   const siste = serie.at(-1);
   if (siste === undefined) return false;
-  if (grense.verdi === 0.5) return siste > 0.5;
+  if (!grense.gyldig) return false;
+  if (grense.verdi === 0.5) return siste >= 0.5;
 
   if (siste >= 0.3) return true;
   const tre = serie.slice(-3);

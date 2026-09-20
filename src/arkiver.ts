@@ -21,14 +21,14 @@ type BiomasseRad = { loknr: number; har_fisk: string; siste_rapport: string | nu
 
 const lok = tilLokalitetar(await lesLoyverader(`${mappe}/akvakulturregister.csv.gz`));
 
-let harFisk = new Map<number, { f: boolean; r: string | null }>();
+let harFisk = new Map<number, { f: boolean | null; r: string | null }>();
 try {
   const b = JSON.parse(
     gunzipSync(readFileSync(`${mappe}/biomasse.json.gz`)).toString(),
   ) as { features?: { attributes: BiomasseRad }[] };
   for (const f of b.features ?? []) {
     harFisk.set(f.attributes.loknr, {
-      f: f.attributes.har_fisk === "Ja",
+      f: f.attributes.har_fisk === "Ja" ? true : f.attributes.har_fisk === "Nei" ? false : null,
       r: f.attributes.siste_rapport ?? null,
     });
   }

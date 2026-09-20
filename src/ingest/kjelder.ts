@@ -1,17 +1,12 @@
 /** Dei opne kjeldene som ikkje ligg i snapshotet frå før. */
 import { hent } from "../lib/http.ts";
+import { mattilsynetApi } from "./mattilsynet.ts";
 
 const MT = "https://akvakultur-offentlig-api.fisk.mattilsynet.io";
 const GIS = "https://gis.fiskeridir.no/server/rest/services/Yggdrasil";
 
 async function mt<T>(sti: string, sok: Record<string, string | number>): Promise<T[]> {
-  const p = new URLSearchParams();
-  for (const [k, v] of Object.entries(sok)) p.set(k, String(v));
-  const { status, tekst } = await hent(`${MT}${sti}?${p}`, {
-    headers: { "Client-Id": "oppdretter", Accept: "application/json" },
-  });
-  if (status !== 200) throw new Error(`Mattilsynet ${sti}: HTTP ${status}`);
-  return JSON.parse(tekst) as T[];
+  return (await mattilsynetApi<T>(sti, sok)).data;
 }
 
 export type Sjukdomstilfelle = {
@@ -32,6 +27,12 @@ export async function hentSjukdom(): Promise<Sjukdomstilfelle[]> {
   });
   // Ugyldiggjorte saker er trekte tilbake av Mattilsynet. Dei skal ikkje varslast.
   return alle.filter((s) => !s.ugyldiggjøringsdato);
+}
+
+/** A missing closing date means no closure is recorded, not proven infection. */
+export function sjukdomDetalj(s: Sjukdomstilfelle) {
+  return { id: s.id, type: s.sykdomstype, subtype: s.sykdomssubtype,
+    varsla: s.varslingsdato, paavist: s.diagnosedato, avslutta: s.avslutningsdato };
 }
 
 export type Soknad = {
@@ -71,11 +72,12 @@ export async function hentSoknader(lag = 0): Promise<Soknad[]> {
   const { status, tekst } = await hent(u);
   if (status !== 200) throw new Error(`Søknader: HTTP ${status}`);
   const d = JSON.parse(tekst) as
-    | { features?: { attributes: Soknad }[] }
+    | { features?: { attributes: Soknad }[]; exceededTransferLimit?: boolean }
     | { error: { code: number; message: string } };
   // Fiskeridirektoratet svarar HTTP 200 med feil i kroppen. Må sjekkast.
   if ("error" in d) throw new Error(`Søknader: ${d.error.code} ${d.error.message}`);
-  return (d.features ?? []).map((f) => f.attributes);
+  if (!Array.isArray(d.features) || d.exceededTransferLimit) throw new Error("Søknader: ugyldig eller avkorta datasvar");
+  return d.features.map((f) => f.attributes);
 }
 
 export function soknadKoordinat(s: Soknad): [number, number] | null {
@@ -91,7 +93,7 @@ export function soknadKoordinat(s: Soknad): [number, number] | null {
 export type BiomasseRad = {
   loknr: number;
   har_fisk: string;
-  siste_rapport: string | null;
+  siste_rapport: number | string | null;
   art: string | null;
   kapasitet_lok: number | null;
   fylke: string | null;
@@ -105,8 +107,9 @@ export async function hentBiomasse(): Promise<BiomasseRad[]> {
   const { status, tekst } = await hent(u);
   if (status !== 200) throw new Error(`Biomasse: HTTP ${status}`);
   const d = JSON.parse(tekst) as
-    | { features?: { attributes: BiomasseRad }[] }
+    | { features?: { attributes: BiomasseRad }[]; exceededTransferLimit?: boolean }
     | { error: { code: number; message: string } };
   if ("error" in d) throw new Error(`Biomasse: ${d.error.code} ${d.error.message}`);
-  return (d.features ?? []).map((f) => f.attributes);
+  if (!Array.isArray(d.features) || d.exceededTransferLimit) throw new Error("Biomasse: ugyldig eller avkorta datasvar");
+  return d.features.map((f) => f.attributes);
 }
