@@ -13,6 +13,7 @@ import { hentSjukdom, hentSoknader, hentBiomasse, sjukdomDetalj } from "./ingest
 import { hentSanntid, hentSkipsinfoMedStatus, gruppe, finnVedAnlegg } from "./ingest/ais.ts";
 import { lesSonerMedStatus, soneFor, sonerGeo, lesPdOmrade } from "./ingest/soner.ts";
 import { hentBronnbatregister, pakallesignal, type Transporteining } from "./ingest/bronnbatregister.ts";
+import { hentNytt, hentJobbar } from "./ingest/bransje.ts";
 import {
   finnOverGrensa, finnLuseauke, finnBehandling, finnKlynger,
   finnSjukdom, finnSoknader, settPoOppslag, score, driftsvekt, SEGMENT, type Hending,
@@ -220,6 +221,24 @@ const alleFartoy = byggFartoy(pos, infoSvar.info, vedKart, reg);
 fartoy = alleFartoy;
 console.log(`  AIS ${pos.length} fartøy · ${reg.size} godkjende i registeret · status ${kjelder.ais.status}`);
 
+// ── Bransjenytt og jobbar ───────────────────────────────────────────────────
+let nytt: Awaited<ReturnType<typeof hentNytt>> = [];
+let jobbar: Awaited<ReturnType<typeof hentJobbar>> = [];
+try {
+  nytt = await hentNytt();
+} catch (e) {
+  console.log(`  NYTT FEILA: ${(e as Error).message}`);
+}
+try {
+  // Selskapsnamna frå Akvakulturregisteret gjer filteret presist.
+  const selskapsnamn = new Set(
+    lokalitetar.flatMap((l) => l.innehavarar.map((i) => i.namn.toUpperCase())).filter(Boolean),
+  );
+  jobbar = await hentJobbar(selskapsnamn);
+} catch (e) {
+  console.log(`  JOBBAR FEILA: ${(e as Error).message}`);
+}
+
 // ── Kartdata ────────────────────────────────────────────────────────────────
 const sisteLus = new Map<number, number>();
 for (const r of sisteRapportar) {
@@ -365,6 +384,9 @@ const data = {
     })
     .sort((a, b) => b.topp * b.fersk - a.topp * a.fersk),
   lokalitetar: kartLok,
+  // Nyheitene er ferskvare; 60 saker dekker om lag ei veke og kostar lite.
+  nytt: nytt.slice(0, 60),
+  jobbar,
   fartoy,
   aisTid,
   po: poGeo,
